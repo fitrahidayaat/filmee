@@ -1,31 +1,63 @@
-import { useEffect, useState } from 'react';
-import { filmee_backend } from 'declarations/filmee_backend';
-import { useAuth } from "../Hooks/authHook";
-import { AuthClient } from '@dfinity/auth-client';
-import { Principal } from "@dfinity/principal";
+import React, { useState, useEffect } from "react";
+import { AuthService } from "../Service/AuthService";
 
 function App() {
-    const { Login, principalId, accountIdentifier, authClient } = useAuth();
-    
-    const getUsers = async () => {
-        const users = await filmee_backend.getUsers();
-        console.log(users);
-    }
+    const [authService, setAuthService] = useState(null);
+    const [principal, setPrincipal] = useState(null);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [username, setUsername] = useState("");
+    const [message, setMessage] = useState("");
 
-    const showBalance = async () => {
-        const balance = await filmee_backend.getAccountBalance(principalId);
-        console.log(Number(balance)/1e8);
+    useEffect(() => {
+        const auth = new AuthService();
+        auth.init().then(() => {
+            setAuthService(auth);
+            setPrincipal(auth.principal);
+            setIsAuthenticated(auth.isAuthenticated);
+            setLoading(false);
+        });
+    }, []);
+
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        try {
+            await authService.login(username);
+            setMessage("Registration successful!");
+        } catch (error) {
+            setMessage(error.message);
+        }
+    };
+
+    const handleGetUser = async () => {
+        try {
+            const user = await authService.getCurrentUser();
+            setMessage(user.username);
+        } catch (error) {
+            setMessage(error.message);
+        }
+    };
+
+    if (loading) {
+        return <p>Loading...</p>;
     }
 
     return (
-        <>
-            <button onClick={Login}>Login</button>
-            <h1>{principalId ? principalId : ""}</h1>
-            <h1>{accountIdentifier ? accountIdentifier : ""}</h1>
-
-            <button onClick={getUsers}>getUsers</button>
-            <button onClick={showBalance}>getBalance</button>
-        </>
+        <div>
+            <h1>User Authentication with Principal</h1>
+            {isAuthenticated ? (
+                <div>
+                    <p>Logged in as: {principal.toText()}</p>
+                    <button onClick={() => authService.logout()}>Logout</button>
+                </div>
+            ) : (
+                <form onSubmit={handleLogin}>
+                    username <input type="text" onChange={(e) => setUsername(e.target.value)} />
+                    <button type="submit">Login with Internet Identity</button>
+                </form>
+            )}
+            <p>{message}</p>
+        </div>
     );
 }
 

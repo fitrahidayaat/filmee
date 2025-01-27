@@ -5,6 +5,7 @@
       "type": "motoko",
       "dependencies": [
         "icp_ledger_canister"
+        
       ]
     },
     "icp_ledger_canister": {

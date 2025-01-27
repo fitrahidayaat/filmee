@@ -1,19 +1,21 @@
 import Principal "mo:base/Principal";
 import Nat32 "mo:base/Nat32";
+import Nat64 "mo:base/Nat64";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
 import Array "mo:base/Array";
 import Result "mo:base/Result";
 import Buffer "mo:base/Buffer";
 import Types "../type/Types";
+import Error "mo:base/Error";
 
 import ledger "canister:icp_ledger_canister";
 
 module {
     public func authenticateUser(
         users : Types.Users,
+        userBalances : Types.UserBalances,
         principalId : Text,
-        depositAddress : Text,
         username : Text,
     ) : Result.Result<Types.User, Text> {
         // Input validation
@@ -31,13 +33,13 @@ module {
         for ((id, user) in users.entries()) {
             if (Text.equal(user.username, username)) {
                 // If the username matches but belongs to a different user, throw an error
-                if (id != principal) {
+                if (id != principalId) {
                     return #err("USERNAME_TAKEN: The username '" # username # "' is already in use.");
                 };
             };
         };
 
-        switch(users.get(principal)) {
+        switch(users.get(principalId)) {
             // If user exists, return their data
             case (?existingUser) {
                 #ok(existingUser);
@@ -45,20 +47,25 @@ module {
 
             case null {
                 let newUser : Types.User = {
-                    id = principal;
+                    id = principalId;
                     username = username;
-                    isPremium = false;
-                    depositAddress = depositAddress;
+                    tier = "free";
                     bookmark = [];
                     profilePic = null;
+                    tierValidUntil = Time.now();
+                };
+
+                let newUserBalance : Types.UserBalance = {
+                    id = principalId;
+                    balance = 0;
                 };
 
                 // Add new user to the hashmap
-                users.put(principal, newUser);
-
+                users.put(principalId, newUser);
+                userBalances.put(principalId, newUserBalance);
                 #ok(newUser);
             }
-        }
+        };
     };
 
     public func updateUserProfile(
@@ -71,7 +78,7 @@ module {
             return #err("Anonymous principals are not allowed");
         };
 
-        switch(users.get(principal)) {
+        switch(users.get(principalId)) {
             case (null) {
                 return #err("User not found!");
             };
@@ -85,7 +92,7 @@ module {
 
                         if (newUsername != user.username) {
                         for ((id, existingUser) in users.entries()) {
-                            if (id != principal and Text.equal(existingUser.username, newUsername)) {
+                            if (id != principalId and Text.equal(existingUser.username, newUsername)) {
                                 return #err("USERNAME_TAKEN: The username '" # newUsername # "' is already in use.");
                             };
                         };
@@ -101,46 +108,113 @@ module {
 
                 let updatedUser : Types.User = {
                     id = user.id;
-                    isPremium = user.isPremium;
+                    tier = user.tier;
                     bookmark = user.bookmark;
-                    depositAddress = user.depositAddress;
+                    tierValidUntil = user.tierValidUntil;
 
                     // UPDATE FIELD
                     username = username;
                     profilePic = profilePic;
                 };
 
-                users.put(principal, updatedUser);
+                users.put(principalId, updatedUser);
                 #ok(updatedUser);
             }
         }
     };
 
-    // GET ICP BALANCE
-    public func getAccountBalance(principalId : Text) : async Nat {
-        let principal = Principal.fromText(principalId);
-        let balance = await ledger.icrc1_balance_of({
-            owner = principal;
-            subaccount = null;
-        });
-        return balance;
-    };
-
-    // GET CREDIT BALANCE
-    public func getCreditBalance(userBalances : Types.UserBalances, userId : Principal) : Types.UserBalance {
-        switch (userBalances.get(userId)) {
-            case (null) {
-                { balance = 0; id = userId };
+    public func topUpBalance(userBalances : Types.UserBalances, principalId : Text, amount : Nat) : ?Types.UserBalance {
+        switch (userBalances.get(principalId)) {
+            case (?userBalance) {
+                // If the user balance exists, update the balance
+                let updatedBalance = {
+                    id = userBalance.id;
+                    balance = userBalance.balance + amount;
+                };
+                userBalances.put(principalId, updatedBalance);
+                return ?updatedBalance; // Return the updated balance
             };
-            case (?balance) { balance };
+            case null {
+                // Handle case where no balance exists for the given principalId
+                let newBalance = {
+                    id = principalId;
+                    balance = amount; // Initialize balance with the amount
+                };
+                userBalances.put(principalId, newBalance);
+                return ?newBalance; // Return the new balance
+            };
         };
     };
 
-    // public func topUpBalance(users: Types.Users ,principalId : Principal, nominal : Nat) : Result.Result<Types.User, Text> {
-        
-    // };
+    public func purchasePremium(users : Types.Users, userBalances : Types.UserBalances, principalId : Text, tier : Text) : Text {
+        switch (userBalances.get(principalId)) {
+            case (?userBalance) {
+                if (tier == "tier1") {
+                    if(userBalance.balance < 20) {
+                        return "Issuficient Balance";
+                    } else {
+                        let updatedBalance = {
+                            id = principalId;
+                            balance : Nat = userBalance.balance - 20;
+                        };
+                        userBalances.put(principalId, updatedBalance);
+                        
+                        switch (users.get(principalId)) {
+                            case (?user) {
 
-    // public func premiumPurchase(users: Types.Users, principalId : Principal) : Result.Result<Types.User, Text> {
+                                let updatedUser : Types.User = {
+                                    id = user.id;
+                                    tier = "tier1";
+                                    bookmark = user.bookmark;
+                                    username = user.username;
+                                    profilePic = user.profilePic;
+                                    tierValidUntil = user.tierValidUntil + 30 * 24 * 60 * 60 * 1000;
+                                };
+                                users.put(principalId, updatedUser);
+                            };
+                            case null {
+                                return "User Not Found"
+                            }
+                        };
+                        return "OK";
+                    }
+                } else if(tier == "tier2") {
+                    if(userBalance.balance < 40) {
 
-    // };
+                        return "Issuficient Balance";
+                    } else {
+                        let newBalance = {
+                            id = principalId;
+                            balance : Nat = userBalance.balance - 40;
+                        };
+                        userBalances.put(principalId, newBalance);
+
+                        switch (users.get(principalId)) {
+                            case (?user) {
+                                let updatedUser : Types.User = {
+                                    id = user.id;
+                                    tier = "tier2";
+                                    bookmark = user.bookmark;
+                                    username = user.username;
+                                    profilePic = user.profilePic;
+                                    tierValidUntil = user.tierValidUntil + 30 * 24 * 60 * 60 * 1000;
+                                };
+                                users.put(principalId, updatedUser);
+                            };
+                            case null {
+                                return "User Not Found"
+                            }
+                        };
+                        return "OK";
+                    }
+                } else {
+                    return "OK";
+                }
+            };
+            case null {
+                return "User Not Found";
+            }
+        }
+    }
+
 }

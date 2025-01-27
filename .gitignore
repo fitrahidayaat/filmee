@@ -25,3 +25,7 @@ dist/
 
 # environment variables
 .env
+
+output.txt
+seed_motoko.py
+movies_data.csv

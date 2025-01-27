@@ -3,25 +3,30 @@ import Principal "mo:base/Principal";
 import Bool "mo:base/Bool";
 import Nat "mo:base/Nat";
 import Text "mo:base/Text";
+import Float "mo:base/Float";
+
+
+import ledger "canister:icp_ledger_canister";
 
 module {
-    public type Users = HashMap.HashMap<Principal, User>;
+    public type Users = HashMap.HashMap<Text, User>;
     public type Movies = HashMap.HashMap<Text, Movie>;
     public type Reviews = HashMap.HashMap<Text, Review>;
-    public type UserBalances = HashMap.HashMap<Principal, UserBalance>;
+    public type UserBalances = HashMap.HashMap<Text, UserBalance>;
+    public type Histories = HashMap.HashMap<Text, History>;
 
     public type User = {
-        id : Principal;
+        id : Text;
         username : Text;
-        isPremium : Bool;
+        tier : Text;
         profilePic : ?Text;
-        depositAddress : Text;
+        tierValidUntil : Int;
 
-        bookmark : [Principal];
+        bookmark : [Text];
     };
 
     public type UserBalance = {
-        id : Principal;
+        id : Text;
         balance : Nat;
     };
 
@@ -32,9 +37,23 @@ module {
 
     public type Movie = {
         id : Text;
+        release_date : Text;
+        title : Text;
+        overview : Text;
+        popularity : Float;
+        vote_count : Nat;
+        vote_average : Float;
+        original_language : Text;
+        genre : [Text];
+        poster_url : Text;
     };
 
     public type Review = {
         id : Text;
     };
+
+    public type History = {
+        movieHistories : [Text];
+    };
+    
 }
