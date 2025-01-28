@@ -151,12 +151,12 @@ module {
         switch (userBalances.get(principalId)) {
             case (?userBalance) {
                 if (tier == "tier1") {
-                    if(userBalance.balance < 20) {
+                    if(userBalance.balance < 5) {
                         return "Issuficient Balance";
                     } else {
                         let updatedBalance = {
                             id = principalId;
-                            balance : Nat = userBalance.balance - 20;
+                            balance : Nat = userBalance.balance - 5;
                         };
                         userBalances.put(principalId, updatedBalance);
                         
@@ -180,13 +180,13 @@ module {
                         return "OK";
                     }
                 } else if(tier == "tier2") {
-                    if(userBalance.balance < 40) {
+                    if(userBalance.balance < 10) {
 
                         return "Issuficient Balance";
                     } else {
                         let newBalance = {
                             id = principalId;
-                            balance : Nat = userBalance.balance - 40;
+                            balance : Nat = userBalance.balance - 10;
                         };
                         userBalances.put(principalId, newBalance);
 

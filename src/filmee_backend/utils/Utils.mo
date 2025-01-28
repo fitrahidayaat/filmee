@@ -22,4 +22,16 @@ module {
         let seconds = timestamp / 1_000_000_000;
         return "UUID-" # Int.toText(seconds);
     };
+
+    public func getCharAtIndex(input : Text, index : Nat) : async ?Char {
+        // Convert the string to an array of characters
+        let chars = Text.toArray(input);
+
+        // Check if the index is within bounds
+        if (index < chars.size()) {
+            ?chars[index]; // Return the character at the specified index
+        } else {
+            null; // Return null if the index is out of bounds
+        }
+    };
 };

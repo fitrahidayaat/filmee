@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { AuthService } from "../Service/AuthService";
+import { filmee_backend } from "../../../declarations/filmee_backend";
 
 function App() {
     const [authService, setAuthService] = useState(null);
@@ -21,12 +22,14 @@ function App() {
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        try {
-            await authService.login(username);
-            setMessage("Registration successful!");
-        } catch (error) {
-            setMessage(error.message);
-        }
+        // try {
+        //     await authService.login(username);
+        //     setMessage("Registration successful!");
+        // } catch (error) {
+        //     setMessage(error.message);
+        // }
+        const res =await filmee_backend.addReview("1", "1", "1");
+        console.log(res);
     };
 
     const handleGetUser = async () => {
@@ -44,7 +47,7 @@ function App() {
 
     return (
         <div>
-            <h1 className="text-amber-500">User Authentication with Principal</h1>
+            <h1 className="text-lime-400 text-9xl">User Authentication with Principal</h1>
             {isAuthenticated ? (
                 <div>
                     <p>Logged in as: {principal.toText()}</p>

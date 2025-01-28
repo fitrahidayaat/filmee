@@ -21,6 +21,7 @@ import UserService "service/UserService";
 import Movies "data/Movies";
 import Utils "utils/Utils";
 import MovieService "service/MovieService";
+import ReviewService "service/ReviewService";
 
 actor {
     private var users : Types.Users = HashMap.HashMap(0, Text.equal, Text.hash);
@@ -63,6 +64,53 @@ actor {
 
     public shared func purchasePremium(principalId : Text, tier : Text) : async Text {
         return UserService.purchasePremium(users, userBalances, principalId, tier);
+    };
+
+    public func getBookmarks(principalId : Text) : async [Types.Movie] {
+        switch (users.get(principalId)) {
+            case (?user) {
+                user.bookmark;
+            };
+            case null {
+                [];
+            };
+        };
+    };
+
+    public func addBookmark(principalId : Text, movieId : Text) : async [Types.Movie] {
+        switch (users.get(principalId)) {
+            case (?user) {
+                let existingBookmark = Array.find<Types.Movie>(user.bookmark, func(m) { m.id == movieId });
+                switch (existingBookmark) {
+                    case (?_) {
+                        user.bookmark; // Movie already bookmarked, return current bookmarks
+                    };
+                    case null {
+                        switch (movies.get(movieId)) {
+                            case (?movie) {
+                                let newBookmarks = Array.append<Types.Movie>(user.bookmark, [movie]);
+                                let updatedUser : Types.User = {
+                                    id = user.id;
+                                    username = user.username;
+                                    tier = user.tier;
+                                    profilePic = user.profilePic;
+                                    tierValidUntil = user.tierValidUntil;
+                                    bookmark = newBookmarks;
+                                };
+                                users.put(principalId, updatedUser);
+                                newBookmarks;
+                            };
+                            case null {
+                                user.bookmark; // Movie not found, return current bookmarks
+                            };
+                        };
+                    };
+                };
+            };
+            case null {
+                []; // User not found, return empty array
+            };
+        };
     };
 
     // MOVIE
@@ -152,24 +200,93 @@ actor {
 
     // REVIEW
     public func getReviewsByMovieId(movieId : Text) : async [Types.Review] {
-        // Use mapFilter to filter reviews by movieId
-        let filteredReviews = HashMap.mapFilter<Text, Types.Review, Types.Review>(
-            reviews,
-            Text.equal,
-            Text.hash,
-            func (key : Text, review : Types.Review) : ?Types.Review {
-                if (review.movieId == movieId) {
-                    ?review; // Include the review if it matches the movieId
-                } else {
-                    null; // Exclude the review if it doesn't match
-                }
-            }
-        );
+        return ReviewService.getReviewsByMovieId(reviews, movieId);
+    };
 
-        // Convert the filtered HashMap values to an array
-        let matchingReviews = Iter.toArray(filteredReviews.entries());
+    public func addReview(principalId : Text, movieId : Text, comment : Text) : async Types.Review {
+        let id = Utils.generateUUID();
+        let response = await spoilerDetection(comment);
+        let spoiler = await Utils.getCharAtIndex(response, 14);
+        let isSpoiler : Bool = switch (spoiler) {
+            case (?'1') { true };  
+            case (?'0') { false }; 
+            case (_) { false };  
+        };
 
-        // Return the filtered reviews
-        matchingReviews;
+        let newReview : Types.Review = {
+            id = id;
+            principalId = principalId;
+            movieId = movieId;
+            comment = comment;
+            upVote = [];
+            downVote = [];
+            date = Time.now()/1000000;
+            isSpoiler = isSpoiler; 
+        };
+
+        reviews.put(id, newReview);
+        return newReview;
+    };
+
+    public func addUpVote(principalId : Text, reviewId : Text) : async Types.Review {
+        switch (reviews.get(reviewId)) {
+            case null {
+                throw Error.reject("Review not found");
+            };
+            case (?review) {
+                // Check if user has already voted
+                let hasVoted = Array.find<Text>(review.upVote, func(id) { id == principalId });
+                switch (hasVoted) {
+                    case (?_) {
+                        throw Error.reject("User has already voted");
+                    };
+                    case null {
+                        let newReview : Types.Review = {
+                            id = review.id;
+                            principalId = review.principalId;
+                            movieId = review.movieId;
+                            comment = review.comment;
+                            upVote = Array.append<Text>(review.upVote, [principalId]); // Add user to upvotes
+                            downVote = review.downVote;
+                            date = review.date;
+                            isSpoiler = review.isSpoiler;
+                        };
+                        reviews.put(reviewId, newReview);
+                        return newReview;
+                    };
+                };
+            };
+        };
+    };
+
+    public func addDownVote(principalId : Text, reviewId : Text) : async Types.Review {
+        switch (reviews.get(reviewId)) {
+            case null {
+                throw Error.reject("Review not found");
+            };
+            case (?review) {
+                // Check if user has already voted
+                let hasVoted = Array.find<Text>(review.downVote, func(id) { id == principalId });
+                switch (hasVoted) {
+                    case (?_) {
+                        throw Error.reject("User has already voted");
+                    };
+                    case null {
+                        let newReview : Types.Review = {
+                            id = review.id;
+                            principalId = review.principalId;
+                            movieId = review.movieId;
+                            comment = review.comment;
+                            upVote = review.upVote;
+                            downVote = Array.append<Text>(review.downVote, [principalId]); // Add user to downvotes
+                            date = review.date;
+                            isSpoiler = review.isSpoiler;
+                        };
+                        reviews.put(reviewId, newReview);
+                        return newReview;
+                    };
+                };
+            };
+        };
     };
 };
