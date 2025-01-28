@@ -22,14 +22,12 @@ function App() {
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        // try {
-        //     await authService.login(username);
-        //     setMessage("Registration successful!");
-        // } catch (error) {
-        //     setMessage(error.message);
-        // }
-        const res =await filmee_backend.addReview("1", "1", "1");
-        console.log(res);
+        try {
+            await authService.login(username);
+            setMessage("Registration successful!");
+        } catch (error) {
+            setMessage(error.message);
+        }
     };
 
     const handleGetUser = async () => {
@@ -47,7 +45,7 @@ function App() {
 
     return (
         <div>
-            <h1 className="text-lime-400 text-9xl">User Authentication with Principal</h1>
+            <h1 className="text-lime-400 text-4xl">User Authentication with Principal</h1>
             {isAuthenticated ? (
                 <div>
                     <p>Logged in as: {principal.toText()}</p>
