@@ -50,6 +50,12 @@ module {
 
     public type Review = {
         id : Text;
+        principalId : Text;
+        movieId : Text;
+        comment : Text;
+        upVote : Nat;
+        downVote : Nat;
+        date : Int;
     };
 
     public type History = {

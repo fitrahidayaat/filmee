@@ -8,6 +8,7 @@ import Result "mo:base/Result";
 import Buffer "mo:base/Buffer";
 import Types "../type/Types";
 import Error "mo:base/Error";
+import Nat "mo:base/Nat";
 
 import ledger "canister:icp_ledger_canister";
 
@@ -215,6 +216,17 @@ module {
                 return "User Not Found";
             }
         }
+    };
+
+    public func getAccountBalance(userBalances : Types.UserBalances, principalId : Text) : Nat{
+        switch (userBalances.get(principalId)) {
+            case (?userBalance) { 
+                return userBalance.balance; // Access balance if it exists
+            };
+            case null {
+                return 0; // Return 0 (or some default value) if no balance exists
+            };
+        };
     }
 
 }

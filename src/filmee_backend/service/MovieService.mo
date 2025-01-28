@@ -8,9 +8,28 @@ import Result "mo:base/Result";
 import Buffer "mo:base/Buffer";
 import Types "../type/Types";
 import Error "mo:base/Error";
-
-import ledger "canister:icp_ledger_canister";
+import Iter "mo:base/Iter";
+import Utils "../utils/Utils";
 
 module {
-    
+    public func seedMovies(movies: Types.Movies, moviesData : [Types.Movie]) : Text{
+        for(i in Iter.range(0, moviesData.size() - 1)) {
+            movies.put(moviesData[i].id, moviesData[i]);
+        };
+        return "OK";
+    };
+
+    public func searchMovies(movies : Types.Movies, keyword : Text) : [Types.Movie] {
+        let allMovies = Iter.toArray(movies.vals());
+        let lowerKeyword = Utils.toLower(keyword);
+        let filteredMovies = Iter.toArray(
+            Iter.filter(
+                allMovies.vals(),
+                func(movie : Types.Movie) : Bool {
+                    Text.contains(Utils.toLower(movie.title), #text lowerKeyword);
+                },
+            )
+        );
+        filteredMovies;
+    }
 }
