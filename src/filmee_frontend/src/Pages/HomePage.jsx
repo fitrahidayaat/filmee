@@ -44,7 +44,7 @@ function App() {
 
     return (
         <div>
-            <h1>User Authentication with Principal</h1>
+            <h1 className="text-blue-500">User Authentication with Principal</h1>
             {isAuthenticated ? (
                 <div>
                     <p>Logged in as: {principal.toText()}</p>
