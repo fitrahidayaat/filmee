@@ -227,6 +227,53 @@ module {
                 return 0; // Return 0 (or some default value) if no balance exists
             };
         };
+    };
+
+    public func getBookmarks(users : Types.Users, principalId : Text) : [Types.Movie] {
+        switch (users.get(principalId)) {
+            case (?user) {
+                user.bookmark;
+            };
+            case null {
+                [];
+            };
+        };
+    };
+
+    public func addBookmark(users : Types.Users, movies : Types.Movies, principalId : Text, movieId : Text) : [Types.Movie] {
+        switch (users.get(principalId)) {
+            case (?user) {
+                let existingBookmark = Array.find<Types.Movie>(user.bookmark, func(m) { m.id == movieId });
+                switch (existingBookmark) {
+                    case (?_) {
+                        user.bookmark; // Movie already bookmarked, return current bookmarks
+                    };
+                    case null {
+                        switch (movies.get(movieId)) {
+                            case (?movie) {
+                                let newBookmarks = Array.append<Types.Movie>(user.bookmark, [movie]);
+                                let updatedUser : Types.User = {
+                                    id = user.id;
+                                    username = user.username;
+                                    tier = user.tier;
+                                    profilePic = user.profilePic;
+                                    tierValidUntil = user.tierValidUntil;
+                                    bookmark = newBookmarks;
+                                };
+                                users.put(principalId, updatedUser);
+                                newBookmarks;
+                            };
+                            case null {
+                                user.bookmark; // Movie not found, return current bookmarks
+                            };
+                        };
+                    };
+                };
+            };
+            case null {
+                []; // User not found, return empty array
+            };
+        };
     }
 
 }

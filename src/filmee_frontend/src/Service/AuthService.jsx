@@ -18,7 +18,7 @@ export class AuthService {
   }
 
   // Login using Internet Identity
-  async login(username) {
+  async register(username) {
     if (!this.authClient) return;
     await this.authClient.login({
       identityProvider: process.env.DFX_NETWORK === "local" ? "https://identity.ic0.app" : "http://localhost:8000?canisterId=bd3sg-teaaa-aaaaa-qaaba-cai",
@@ -27,6 +27,20 @@ export class AuthService {
         this.isAuthenticated = true;
 
         await filmee_backend.authenticateUser(username, this.principal.toText());
+        window.location.href = '/';
+      },
+    });
+  }
+
+  async login() {
+    if (!this.authClient) return;
+    await this.authClient.login({
+      identityProvider: process.env.DFX_NETWORK === "local" ? "https://identity.ic0.app" : "http://localhost:8000?canisterId=bd3sg-teaaa-aaaaa-qaaba-cai",
+      onSuccess: async () => {
+        this.principal = this.authClient.getIdentity().getPrincipal();
+        this.isAuthenticated = true;
+
+        window.location.href = '/';
       },
     });
   }

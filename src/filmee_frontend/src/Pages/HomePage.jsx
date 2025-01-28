@@ -23,8 +23,16 @@ function App() {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            await authService.login(username);
-            setMessage("Registration successful!");
+            await authService.login();
+        } catch (error) {
+            setMessage(error.message);
+        }
+    };
+
+    const handleRegister = async (e) => {
+        e.preventDefault();
+        try {
+            await authService.register(username);
         } catch (error) {
             setMessage(error.message);
         }
@@ -45,19 +53,25 @@ function App() {
 
     return (
         <div>
-            <h1 className="text-lime-400 text-4xl">User Authentication with Principal</h1>
+            <h1 className="text-4xl">User Authentication with Principal</h1>
             {isAuthenticated ? (
                 <div>
                     <p>Logged in as: {principal.toText()}</p>
-                    <button onClick={() => authService.logout()}>Logout</button>
+                    <form action="" onSubmit={() => {authService.logout()}}>
+                        <button type="submit">Logout</button>
+                    </form>
                 </div>
             ) : (
-                <form onSubmit={handleLogin}>
-                    username <input type="text" onChange={(e) => setUsername(e.target.value)} />
-                    <button type="submit">Login with Internet Identity</button>
-                </form>
+                <>
+                    <form onSubmit={handleLogin}>
+                        <button type="submit" className="py-2 px-4 bg-blue-500 text-white rounded-lg">Login</button>
+                    </form>
+                    <form onSubmit={handleRegister}>
+                        username <input type="text" onChange={(e) => setUsername(e.target.value)} />
+                        <button type="submit" className="py-2 px-4 bg-blue-500 text-white rounded-lg">Register</button>
+                    </form>
+                </>
             )}
-            <p>{message}</p>
         </div>
     );
 }

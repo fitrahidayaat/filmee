@@ -67,97 +67,14 @@ actor {
     };
 
     public func getBookmarks(principalId : Text) : async [Types.Movie] {
-        switch (users.get(principalId)) {
-            case (?user) {
-                user.bookmark;
-            };
-            case null {
-                [];
-            };
-        };
+        return UserService.getBookmarks(users, principalId);
     };
 
     public func addBookmark(principalId : Text, movieId : Text) : async [Types.Movie] {
-        switch (users.get(principalId)) {
-            case (?user) {
-                let existingBookmark = Array.find<Types.Movie>(user.bookmark, func(m) { m.id == movieId });
-                switch (existingBookmark) {
-                    case (?_) {
-                        user.bookmark; // Movie already bookmarked, return current bookmarks
-                    };
-                    case null {
-                        switch (movies.get(movieId)) {
-                            case (?movie) {
-                                let newBookmarks = Array.append<Types.Movie>(user.bookmark, [movie]);
-                                let updatedUser : Types.User = {
-                                    id = user.id;
-                                    username = user.username;
-                                    tier = user.tier;
-                                    profilePic = user.profilePic;
-                                    tierValidUntil = user.tierValidUntil;
-                                    bookmark = newBookmarks;
-                                };
-                                users.put(principalId, updatedUser);
-                                newBookmarks;
-                            };
-                            case null {
-                                user.bookmark; // Movie not found, return current bookmarks
-                            };
-                        };
-                    };
-                };
-            };
-            case null {
-                []; // User not found, return empty array
-            };
-        };
+        return UserService.addBookmark(users, movies, principalId, movieId);
     };
 
     // MOVIE
-    public shared query func transform({
-        context : Blob;
-        response : IC.http_request_result;
-    }) : async IC.http_request_result {
-        {
-            response with headers = []; // not intersted in the headers
-        };
-    };
-
-    public func http_request(url : Text, request_body_json : Text) : async Text {
-        let idempotency_key : Text = Utils.generateUUID();
-        let request_headers = [
-            { name = "User-Agent"; value = "http_post_sample" },
-            { name = "Content-Type"; value = "application/json" },
-            { name = "Idempotency-Key"; value = idempotency_key },
-        ];
-
-        let request_body = Text.encodeUtf8(request_body_json);
-
-        let http_request : IC.http_request_args = {
-            url = url;
-            max_response_bytes = null;
-            headers = request_headers;
-            body = ?request_body;
-            method = #post;
-            transform = ?{
-                function = transform;
-                context = Blob.fromArray([]);
-            };
-        };
-
-        Cycles.add<system>(230_850_258_000);
-
-        let http_response : IC.http_request_result = await IC.http_request(http_request);
-
-        let decoded_text : Text = switch (Text.decodeUtf8(http_response.body)) {
-            case (null) { "No value returned" };
-            case (?y) { y };
-        };
-
-        let result : Text = decoded_text;
-        result;
-    };
-
     public func seedMovies() : async Text {
         return MovieService.seedMovies(movies, Movies.movieData);
     };
@@ -204,89 +121,63 @@ actor {
     };
 
     public func addReview(principalId : Text, movieId : Text, comment : Text) : async Types.Review {
-        let id = Utils.generateUUID();
         let response = await spoilerDetection(comment);
         let spoiler = await Utils.getCharAtIndex(response, 14);
-        let isSpoiler : Bool = switch (spoiler) {
-            case (?'1') { true };  
-            case (?'0') { false }; 
-            case (_) { false };  
-        };
-
-        let newReview : Types.Review = {
-            id = id;
-            principalId = principalId;
-            movieId = movieId;
-            comment = comment;
-            upVote = [];
-            downVote = [];
-            date = Time.now()/1000000;
-            isSpoiler = isSpoiler; 
-        };
-
-        reviews.put(id, newReview);
-        return newReview;
+        return ReviewService.addReview(reviews, principalId, movieId, comment, spoiler);
     };
 
-    public func addUpVote(principalId : Text, reviewId : Text) : async Types.Review {
-        switch (reviews.get(reviewId)) {
-            case null {
-                throw Error.reject("Review not found");
-            };
-            case (?review) {
-                // Check if user has already voted
-                let hasVoted = Array.find<Text>(review.upVote, func(id) { id == principalId });
-                switch (hasVoted) {
-                    case (?_) {
-                        throw Error.reject("User has already voted");
-                    };
-                    case null {
-                        let newReview : Types.Review = {
-                            id = review.id;
-                            principalId = review.principalId;
-                            movieId = review.movieId;
-                            comment = review.comment;
-                            upVote = Array.append<Text>(review.upVote, [principalId]); // Add user to upvotes
-                            downVote = review.downVote;
-                            date = review.date;
-                            isSpoiler = review.isSpoiler;
-                        };
-                        reviews.put(reviewId, newReview);
-                        return newReview;
-                    };
-                };
-            };
+    public func addUpVote(principalId : Text, reviewId : Text) : async Result.Result<Types.Review, Text> {
+        return ReviewService.addUpVote(reviews, principalId, reviewId);
+    };
+
+    public func addDownVote(principalId : Text, reviewId : Text) : async Result.Result<Types.Review, Text> {
+        return ReviewService.addDownVote(reviews, principalId, reviewId);
+    };
+
+
+
+    // UTILS
+    public shared query func transform({
+        context : Blob;
+        response : IC.http_request_result;
+    }) : async IC.http_request_result {
+        {
+            response with headers = []; // not intersted in the headers
         };
     };
 
-    public func addDownVote(principalId : Text, reviewId : Text) : async Types.Review {
-        switch (reviews.get(reviewId)) {
-            case null {
-                throw Error.reject("Review not found");
-            };
-            case (?review) {
-                // Check if user has already voted
-                let hasVoted = Array.find<Text>(review.downVote, func(id) { id == principalId });
-                switch (hasVoted) {
-                    case (?_) {
-                        throw Error.reject("User has already voted");
-                    };
-                    case null {
-                        let newReview : Types.Review = {
-                            id = review.id;
-                            principalId = review.principalId;
-                            movieId = review.movieId;
-                            comment = review.comment;
-                            upVote = review.upVote;
-                            downVote = Array.append<Text>(review.downVote, [principalId]); // Add user to downvotes
-                            date = review.date;
-                            isSpoiler = review.isSpoiler;
-                        };
-                        reviews.put(reviewId, newReview);
-                        return newReview;
-                    };
-                };
+    public func http_request(url : Text, request_body_json : Text) : async Text {
+        let idempotency_key : Text = Utils.generateUUID();
+        let request_headers = [
+            { name = "User-Agent"; value = "http_post_sample" },
+            { name = "Content-Type"; value = "application/json" },
+            { name = "Idempotency-Key"; value = idempotency_key },
+        ];
+
+        let request_body = Text.encodeUtf8(request_body_json);
+
+        let http_request : IC.http_request_args = {
+            url = url;
+            max_response_bytes = null;
+            headers = request_headers;
+            body = ?request_body;
+            method = #post;
+            transform = ?{
+                function = transform;
+                context = Blob.fromArray([]);
             };
         };
+
+        Cycles.add<system>(230_850_258_000);
+
+        let http_response : IC.http_request_result = await IC.http_request(http_request);
+
+        let decoded_text : Text = switch (Text.decodeUtf8(http_response.body)) {
+            case (null) { "No value returned" };
+            case (?y) { y };
+        };
+
+        let result : Text = decoded_text;
+        result;
     };
 };

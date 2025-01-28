@@ -32,4 +32,92 @@ module {
         // Return the filtered reviews
         matchingReviews;
     };
+
+    public func addReview(reviews : Types.Reviews, principalId : Text, movieId : Text, comment : Text, spoiler : ?Char) : Types.Review {
+        let id = Utils.generateUUID();
+        
+        let isSpoiler : Bool = switch (spoiler) {
+            case (?'1') { true };  
+            case (?'0') { false }; 
+            case (_) { false };  
+        };
+
+        let newReview : Types.Review = {
+            id = id;
+            principalId = principalId;
+            movieId = movieId;
+            comment = comment;
+            upVote = [];
+            downVote = [];
+            date = Time.now()/1000000;
+            isSpoiler = isSpoiler; 
+        };
+
+        reviews.put(id, newReview);
+        return newReview;
+    };
+
+    public func addUpVote(reviews : Types.Reviews, principalId : Text, reviewId : Text) : Result.Result<Types.Review, Text> {
+        switch (reviews.get(reviewId)) {
+            case null {
+                #err("Review not found");
+            };
+            case (?review) {
+                // Check if user has already voted
+                let hasVoted = Array.find<Text>(review.upVote, func(id) { id == principalId });
+                switch (hasVoted) {
+                    case (?_) {
+                        #err("User has already voted");
+                    };
+                    case null {
+                        let newReview : Types.Review = {
+                            id = review.id;
+                            principalId = review.principalId;
+                            movieId = review.movieId;
+                            comment = review.comment;
+                            upVote = Array.append<Text>(review.upVote, [principalId]); // Add user to upvotes
+                            downVote = review.downVote;
+                            date = review.date;
+                            isSpoiler = review.isSpoiler;
+                        };
+                        reviews.put(reviewId, newReview);
+                        return #ok(newReview);
+                    };
+                };
+            };
+        };
+    };
+
+    public func addDownVote(reviews : Types.Reviews, principalId : Text, reviewId : Text) : Result.Result<Types.Review, Text> {
+        switch (reviews.get(reviewId)) {
+            case null {
+                #err("Review not found");
+            };
+            case (?review) {
+                // Check if user has already voted
+                let hasVoted = Array.find<Text>(review.downVote, func(id) { id == principalId });
+                switch (hasVoted) {
+                    case (?_) {
+                        #err("User has already voted");
+                    };
+                    case null {
+                        let newReview : Types.Review = {
+                            id = review.id;
+                            principalId = review.principalId;
+                            movieId = review.movieId;
+                            comment = review.comment;
+                            upVote = review.upVote;
+                            downVote = Array.append<Text>(review.downVote, [principalId]); // Add user to downvotes
+                            date = review.date;
+                            isSpoiler = review.isSpoiler;
+                        };
+                        reviews.put(reviewId, newReview);
+                        return #ok(newReview);
+                    };
+                };
+            };
+        };
+    };
+
+    
 }
