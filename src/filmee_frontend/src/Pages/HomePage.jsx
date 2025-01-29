@@ -104,7 +104,7 @@ function App() {
             <h1 className="text-4xl">User Authentication with Principal</h1>
             {isAuthenticated ? (
                 <div>
-                    <p>Logged in as: {message}</p>
+                    <p>Logged in as: {principal.toText()}</p>
                     {image && <img src={image} alt="Profile" />} {/* Display the image if it exists */}
                     <form action="" onSubmit={() => { authService.logout() }}>
                         <button type="submit">Logout</button>

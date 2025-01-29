@@ -67,6 +67,10 @@ actor {
         return UserService.addBookmark(users, movies, principalId, movieId);
     };
 
+    public func addHistory(principalId: Text, title : Text) : async [Text] {
+        return UserService.addHistory(users, principalId, title);
+    };
+
     // MOVIE
     public func seedMovies() : async Text {
         return MovieService.seedMovies(movies, Movies.movieData);
@@ -111,6 +115,30 @@ actor {
         let url = "https://filmee-ai-843239670484.asia-southeast2.run.app/recommend"; 
         let request_body_json : Text = "{ \"title\" : \"" # title # "\", \"top_n\" : \"" # Nat.toText(top_n) # " \"}";
         await http_request(url, request_body_json);
+    };
+
+    public func getRecommendationUser(principalId : Text, top_n : Nat) : async Text {
+        let url = "https://filmee-ai-843239670484.asia-southeast2.run.app/recommend-user"; 
+        var request_body_json : Text = "{ \"titles\" : [";
+        switch(users.get(principalId)) {
+            case(?user) { 
+                let titles = user.histories;
+                for(i in Iter.range(0, titles.size() - 1)) {
+                    request_body_json := request_body_json # "\"" # titles[i] # "\"";
+                    if(i != titles.size() - 1) {
+                        request_body_json := request_body_json # ",";
+                    };
+                };
+
+                request_body_json := request_body_json # "], \"top_n\" : \"" # Nat.toText(top_n) # " \"}";
+
+                await http_request(url, request_body_json);
+             };
+            case(null) { 
+                "User Not Found"
+            };
+        };
+
     };
 
     // REVIEW

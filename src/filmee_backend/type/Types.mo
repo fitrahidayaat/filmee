@@ -23,6 +23,7 @@ module {
         tierValidUntil : Int;
 
         bookmark : [Movie];
+        histories : [Text];
     };
 
     public type UserBalance = {

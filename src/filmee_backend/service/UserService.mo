@@ -52,6 +52,7 @@ module {
                     username = username;
                     tier = "free";
                     bookmark = [];
+                    histories = [];
                     profilePic = null;
                     tierValidUntil = Time.now()/1000000;
                 };
@@ -111,6 +112,7 @@ module {
                     id = user.id;
                     tier = user.tier;
                     bookmark = user.bookmark;
+                    histories = user.histories;
                     tierValidUntil = user.tierValidUntil;
 
                     // UPDATE FIELD
@@ -168,6 +170,7 @@ module {
                                     tier = "tier1";
                                     bookmark = user.bookmark;
                                     username = user.username;
+                                    histories = user.histories;
                                     profilePic = user.profilePic;
                                     tierValidUntil = user.tierValidUntil + 30 * 24 * 60 * 60 * 1000;
                                 };
@@ -196,6 +199,7 @@ module {
                                     id = user.id;
                                     tier = "tier2";
                                     bookmark = user.bookmark;
+                                    histories = user.histories;
                                     username = user.username;
                                     profilePic = user.profilePic;
                                     tierValidUntil = user.tierValidUntil + 30 * 24 * 60 * 60 * 1000;
@@ -258,6 +262,7 @@ module {
                                     tier = user.tier;
                                     profilePic = user.profilePic;
                                     tierValidUntil = user.tierValidUntil;
+                                    histories = user.histories;
                                     bookmark = newBookmarks;
                                 };
                                 users.put(principalId, updatedUser);
@@ -272,6 +277,48 @@ module {
             };
             case null {
                 []; // User not found, return empty array
+            };
+        };
+    };
+
+    public func addHistory(users : Types.Users, principalId: Text, title : Text) : [Text] {
+        switch(users.get(principalId)) {
+            case(?user) { 
+                if(user.histories.size() == 5) {
+                    var newHistory : [Text] = Array.subArray<Text>(user.histories, 1, user.histories.size() - 1);
+                    newHistory := Array.append<Text>(newHistory, [title]);
+                    let newUser : Types.User = {
+                        id = user.id;
+                        tier = user.tier;
+                        bookmark = user.bookmark;
+                        histories = newHistory;
+                        tierValidUntil = user.tierValidUntil;
+                        username = user.username;
+                        profilePic = user.profilePic;
+                    };
+
+                    users.put(principalId, newUser);
+                    return newHistory;
+                } else {
+                    var newHistory : [Text] = user.histories;
+                    newHistory := Array.append<Text>(newHistory, [title]);
+                    let newUser : Types.User = {
+                        id = user.id;
+                        tier = user.tier;
+                        bookmark = user.bookmark;
+                        histories = newHistory;
+                        tierValidUntil = user.tierValidUntil;
+                        username = user.username;
+                        profilePic = user.profilePic;
+                    };
+
+                    users.put(principalId, newUser);
+                    return newHistory;
+                }
+
+             };
+            case(null) { 
+                return [];
             };
         };
     }
