@@ -235,6 +235,178 @@ example return
 ```
 
 ## Movies
+### getMovieById
+```
+getMovieById(id : Text)
+```
+example usage
+```
+getMovieById("1")
+```
+example return
+```
+{
+  id = "1";
+  title = "";
+  vote_average = 8.3;
+  release_date = "2021-12-15";
+  overview = "";
+  poster_url = "";
+  original_language = "";
+  genre = ["Action", "Adventure", "Science Fiction"];
+  vote_count = 8_940;
+  popularity = 5083.954;
+}
 ```
 
+### searchMovieByTitle
+```
+searchMovieByTitle(keyword : Text, page : Nat, pageSize : Nat)
+```
+example usage
+```
+searchMovieByTitle("spider", 0, 1)
+```
+example return
+```
+[
+  {
+    id = "133";
+    title = "The Amazing Spider-Man 2";
+    vote_average = 6.5 : float64;
+    release_date = "2014-04-16";
+    overview = "For Peter Parker, life is busy. Between taking out the bad guys as Spider-Man and spending time with the person he loves, Gwen Stacy, high school graduation cannot come quickly enough. Peter has not forgotten about the promise he made to Gwen’s father to protect her by staying away, but that is a promise he cannot keep. Things will change for Peter when a new villain, Electro, emerges, an old friend, Harry Osborn, returns, and Peter uncovers new clues about his past.";
+    poster_url = "https://image.tmdb.org/t/p/original/c3e9e18SSlvFd1cQaGmUj5tqL5P.jpg";
+    original_language = "en";
+    genre = vec { "Action"; "Adventure"; "Fantasy" };
+    vote_count = 10_763 : nat;
+    popularity = 231.441 : float64;
+  }
+]
+```
+
+### searchMovieByGenre
+```
+searchMovieByGenre(genre : Text, page : Nat, pageSize : Nat)
+```
+example usage
+```
+searchMovieByGenre("Adventure", 0, 1)
+```
+example return
+```
+[
+  {
+    id = "4660";
+    title = "Pokémon: Zoroark - Master of Illusions";
+    vote_average = 6.6 : float64;
+    release_date = "2010-07-10";
+    overview = "Ash and his friends must stop a greedy media mogul from using the shape-shifting Zoroark to capture the time-travelling Celebi.";
+    poster_url = "https://image.tmdb.org/t/p/original/tWgH64RZmm2rIHtO2DNnfN3DZa8.jpg";
+    original_language = "ja";
+    genre = vec { "Family"; "Animation"; "Adventure"; "Fantasy" };
+    vote_count = 152 : nat;
+    popularity = 22.079 : float64;
+  }
+]
+
+```
+
+### searchMovieByTitleUsingFilter
+```
+searchMovieByTitleUsingFilter(keyword : Text, genre : [Text], minRating : Float, page : Nat, pageSize : Nat)
+```
+example usage
+```
+searchMovieByTitleUsingFilter("Spider", ["Adventure"], 6.2, 0, 1)
+```
+example return
+```
+[
+  {
+    id = "133";
+    title = "The Amazing Spider-Man 2";
+    vote_average = 6.5 : float64;
+    release_date = "2014-04-16";
+    overview = "For Peter Parker, life is busy. Between taking out the bad guys as Spider-Man and spending time with the person he loves, Gwen Stacy, high school graduation cannot come quickly enough. Peter has not forgotten about the promise he made to Gwen’s father to protect her by staying away, but that is a promise he cannot keep. Things will change for Peter when a new villain, Electro, emerges, an old friend, Harry Osborn, returns, and Peter uncovers new clues about his past.";
+    poster_url = "https://image.tmdb.org/t/p/original/c3e9e18SSlvFd1cQaGmUj5tqL5P.jpg";
+    original_language = "en";
+    genre = vec { "Action"; "Adventure"; "Fantasy" };
+    vote_count = 10_763 : nat;
+    popularity = 231.441 : float64;
+  }
+]
+```
+
+### spoilerDetection
+```
+spoilerDetection(text : Text) 
+```
+example usage
+```
+spoilerDetection("Main character died at episode 7") 
+```
+example return
+```
+'{"prediction":1}'
+```
+
+### getRecommendation
+```
+getRecommendation(title : Text, top_n : Nat)
+```
+example usage
+```
+getRecommendation("Spider-Man", 2)
+```
+example return
+```
+{
+  "recommendations": [
+    {
+      "Title": "Spider-Man: Into the Spider-Verse",
+      "Overview": "Miles Morales is juggling his life between being a high school student and being a spider-man. When Wilson \"Kingpin\" Fisk uses a super collider, others from across the Spider-Verse are transported to this dimension.",
+      "Genre": "Action, Adventure, Animation, Science Fiction",
+      "Poster_Url": "https://image.tmdb.org/t/p/original/iiZZdoQBEYBv6id8su7ImL0oCbD.jpg",
+      "Similarity_Score": 0.45469761478876514
+    },
+    {
+      "Title": "Spider-Man 3",
+      "Overview": "The seemingly invincible Spider-Man goes up against an all-new crop of villains—including the shape-shifting Sandman. While Spider-Man’s superpowers are altered by an alien organism, his alter ego, Peter Parker, deals with nemesis Eddie Brock and also gets caught up in a love triangle.",
+      "Genre": "Fantasy, Action, Adventure",
+      "Poster_Url": "https://image.tmdb.org/t/p/original/qFmwhVUoUSXjkKRmca5yGDEXBIj.jpg",
+      "Similarity_Score": 0.4513363830639984
+    }
+  ]
+}
+```
+
+### getRecommendationUser(principalId : Text, top_n : Nat)
+```
+getRecommendationUser(principalId : Text, top_n : Nat)
+```
+example usage
+```
+getRecommendationUser("aaaa-aa", 2)
+```
+example return
+```
+{
+  "recommendations": [
+    {
+      "Title": "Spider-Man: Into the Spider-Verse",
+      "Overview": "Miles Morales is juggling his life between being a high school student and being a spider-man. When Wilson \"Kingpin\" Fisk uses a super collider, others from across the Spider-Verse are transported to this dimension.",
+      "Genre": "Action, Adventure, Animation, Science Fiction",
+      "Poster_Url": "https://image.tmdb.org/t/p/original/iiZZdoQBEYBv6id8su7ImL0oCbD.jpg",
+      "Similarity_Score": 0.45469761478876514
+    },
+    {
+      "Title": "Spider-Man 3",
+      "Overview": "The seemingly invincible Spider-Man goes up against an all-new crop of villains—including the shape-shifting Sandman. While Spider-Man’s superpowers are altered by an alien organism, his alter ego, Peter Parker, deals with nemesis Eddie Brock and also gets caught up in a love triangle.",
+      "Genre": "Fantasy, Action, Adventure",
+      "Poster_Url": "https://image.tmdb.org/t/p/original/qFmwhVUoUSXjkKRmca5yGDEXBIj.jpg",
+      "Similarity_Score": 0.4513363830639984
+    }
+  ]
+}
 ```
