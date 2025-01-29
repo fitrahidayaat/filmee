@@ -410,3 +410,102 @@ example return
   ]
 }
 ```
+
+## Review
+### addReview
+```
+addReview(principalId : Text, movieId : Text, comment : Text)
+```
+example usage
+```
+addReview("aaaa-aa", "1", "Very good movie")
+```
+example return
+```
+{
+  id = "UUID-1738148033";
+  date = 1_738_148_033_946 : int;
+  movieId = "1";
+  upVote = vec {};
+  comment = "Very good movie";
+  downVote = vec {};
+  isSpoiler = false;
+  principalId = "aaaa-aa";
+}
+```
+
+### getReviewsByMovieId
+```
+getReviewsByMovieId(movieId : Text)
+```
+example usage
+```
+getReviewsByMovieId("1")
+```
+example return
+```
+{
+  id = "UUID-1738148033";
+  date = 1_738_148_033_946 : int;
+  movieId = "1";
+  upVote = vec {};
+  comment = "Very good movie";
+  downVote = vec {};
+  isSpoiler = false;
+  principalId = "aaaa-aa";
+}
+```
+
+### toggleUpvote
+```
+toggleUpvote(principalId : Text, reviewId : Text)
+```
+example usage
+```
+toggleUpvote("aaaa-aa", "UUID-1738148033")
+```
+example return
+```
+{
+  ok = record {
+    id = "UUID-1738148033";
+    date = 1_738_148_033_946 : int;
+    movieId = "1";
+    upVote = vec {
+      "aaaa-aa";
+    };
+    comment = "Very good movie";
+    downVote = vec {};
+    isSpoiler = false;
+    principalId = "aaaa-aa";
+  }
+}
+```
+
+### toggleDownvote
+```
+toggleDownvote(principalId : Text, reviewId : Text)
+```
+example usage
+```
+toggleDownvote("aaaa-aa", "UUID-1738148033")
+```
+example return
+```
+{
+  ok = record {
+    id = "UUID-1738148033";
+    date = 1_738_148_033_946 : int;
+    movieId = "1";
+    upVote = vec {
+      "aaaa-aa";
+    };
+    comment = "Very good movie";
+    downVote = vec {
+      "aaaa-aa";
+    };
+    isSpoiler = false;
+    principalId = "aaaa-aa";
+  }
+}
+```
