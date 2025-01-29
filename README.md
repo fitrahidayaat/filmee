@@ -67,7 +67,19 @@ authenticateUser(username : Text, principalId : Text)
 ```
 example usage
 ```bash
-authenticateUser("Samsul", "aaaa-aa")
+authenticateUser("Samsul", "aaaa-aa");
+```
+example return
+```
+{
+  id = "aaaa-aa";
+  tierValidUntil = 1_738_145_388_487;
+  username = "Samsul";
+  bookmark = [];
+  tier = "free";
+  histories = [];
+  profilePic = null;
+}
 ```
 
 ### updateUserProfile
@@ -90,6 +102,18 @@ example usage
 ```bash
 getUserById("aaaa-aa")
 ```
+example return
+```
+{
+  id = "aaaa-aa";
+  tierValidUntil = 1_738_145_388_487;
+  username = "Samsul";
+  bookmark = [];
+  tier = "free";
+  histories = [];
+  profilePic = null;
+}
+```
 
 ### getAccountBalance
 ```bash
@@ -98,6 +122,10 @@ getAccountBalance(principalId : Text)
 example usage
 ```bash
 getAccountBalance("aaaa-aa")
+```
+example return
+```
+20
 ```
 
 ### topUpBalance
@@ -108,6 +136,13 @@ example usage
 ```bash
 topUpBalance("aaaa-aa", 20)
 ```
+example return
+```
+{
+  id = "aaaa-aa";
+  balance = 20;
+}
+```
 
 ### purchasePremium
 ```bash
@@ -116,6 +151,10 @@ purchasePremium(principalId : Text, tier : Text)
 example usage
 ```bash
 topUpBalance("aaaa-aa", "tier1")
+```
+example return
+```
+"OK"
 ```
 
 ### getBookmarks
@@ -126,6 +165,23 @@ example usage
 ```bash
 getBookmarks("aaaa-aa", "tier1")
 ```
+example return
+```
+[
+  {
+    id = "1";
+    title = "";
+    vote_average = 8.3;
+    release_date = "2021-12-15";
+    overview = "";
+    poster_url = "";
+    original_language = "";
+    genre = ["Action", "Adventure", "Science Fiction"];
+    vote_count = 8_940;
+    popularity = 5083.954;
+  }
+]
+```
 
 ### addBookmark
 ```
@@ -133,10 +189,52 @@ addBookmark(principalId : Text, movieId : Text)
 ```
 example usage
 ```bash
-addBookmark("aaaa-aa", "1")
+addBookmark("aaaa-aa", "2")
+```
+example return
+```
+[
+  {
+    id = "1";
+    title = "";
+    vote_average = 8.3;
+    release_date = "2021-12-15";
+    overview = "";
+    poster_url = "";
+    original_language = "";
+    genre = ["Action", "Adventure", "Science Fiction"];
+    vote_count = 8_940;
+    popularity = 5083.954;
+  },
+  {
+    id = "2";
+    title = "";
+    vote_average = 8.3;
+    release_date = "2021-12-15";
+    overview = "";
+    poster_url = "";
+    original_language = "";
+    genre = ["Action", "Adventure", "Science Fiction"];
+    vote_count = 8_940;
+    popularity = 5083.954;
+  }
+]
+```
+
+### addHistory
+```
+addHistory(principalId: Text, title : Text)
+```
+example usage
+```
+addHistory("aaaa-aa", "Spider-Man")
+```
+example return
+```
+["Spider-Man"]
 ```
 
 ## Movies
-
 ```
+
 ```
