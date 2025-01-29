@@ -57,7 +57,7 @@ module {
         return newReview;
     };
 
-    public func addUpVote(reviews : Types.Reviews, principalId : Text, reviewId : Text) : Result.Result<Types.Review, Text> {
+    public func toggleUpvote(reviews : Types.Reviews, principalId : Text, reviewId : Text) : Result.Result<Types.Review, Text> {
         switch (reviews.get(reviewId)) {
             case null {
                 #err("Review not found");
@@ -67,7 +67,26 @@ module {
                 let hasVoted = Array.find<Text>(review.upVote, func(id) { id == principalId });
                 switch (hasVoted) {
                     case (?_) {
-                        #err("User has already voted");
+                        var newUpvote : [Text] = [];
+
+                        for(id in review.upVote.vals()) {
+                            if (id != principalId) {
+                                newUpvote := Array.append<Text>(newUpvote, [id]);
+                            }
+                        };
+
+                        let newReview : Types.Review = {
+                            id = review.id;
+                            principalId = review.principalId;
+                            movieId = review.movieId;
+                            comment = review.comment;
+                            upVote = newUpvote;
+                            downVote = review.downVote;
+                            date = review.date;
+                            isSpoiler = review.isSpoiler;
+                        };
+
+                        return #ok(newReview);
                     };
                     case null {
                         let newReview : Types.Review = {
@@ -88,7 +107,7 @@ module {
         };
     };
 
-    public func addDownVote(reviews : Types.Reviews, principalId : Text, reviewId : Text) : Result.Result<Types.Review, Text> {
+    public func toggleDownvote(reviews : Types.Reviews, principalId : Text, reviewId : Text) : Result.Result<Types.Review, Text> {
         switch (reviews.get(reviewId)) {
             case null {
                 #err("Review not found");
@@ -98,7 +117,26 @@ module {
                 let hasVoted = Array.find<Text>(review.downVote, func(id) { id == principalId });
                 switch (hasVoted) {
                     case (?_) {
-                        #err("User has already voted");
+                        var newDownvote : [Text] = [];
+
+                        for(id in review.upVote.vals()) {
+                            if (id != principalId) {
+                                newDownvote := Array.append<Text>(newDownvote, [id]);
+                            }
+                        };
+
+                        let newReview : Types.Review = {
+                            id = review.id;
+                            principalId = review.principalId;
+                            movieId = review.movieId;
+                            comment = review.comment;
+                            upVote = review.upVote;
+                            downVote = newDownvote;
+                            date = review.date;
+                            isSpoiler = review.isSpoiler;
+                        };
+
+                        return #ok(newReview);
                     };
                     case null {
                         let newReview : Types.Review = {

@@ -14,8 +14,6 @@ import Error "mo:base/Error";
 import Cycles "mo:base/ExperimentalCycles";
 import IC "ic:aaaaa-aa";
 
-import ledger "canister:icp_ledger_canister";
-
 import Types "type/Types";
 import UserService "service/UserService";
 import Movies "data/Movies";
@@ -28,11 +26,6 @@ actor {
     private var movies : Types.Movies = HashMap.HashMap(0, Text.equal, Text.hash);
     private var reviews : Types.Reviews = HashMap.HashMap(0, Text.equal, Text.hash);
     private var userBalances : Types.UserBalances = HashMap.HashMap(0, Text.equal, Text.hash);
-    
-    public query func greet(name : Text) : async Text {
-        return "Hello, " # name # "!";
-    };
-    
 
     public shared func authenticateUser(username : Text, principalId : Text) : async Result.Result<Types.User, Text> {
         return UserService.authenticateUser(users, userBalances, principalId, username);
@@ -87,7 +80,6 @@ actor {
     public func getAllMovies(n : Nat) : async [Types.Movie] {
         let allMovies = Iter.toArray(movies.vals());
     
-        // Take the first `n` movies
         let topNMovies = Array.take(allMovies, n);
         
         return topNMovies;
@@ -97,9 +89,16 @@ actor {
         return movies.get(id);
     };
 
-    // Search movies by keyword in title
-    public shared query func searchMovies(keyword : Text) : async [Types.Movie] {
-        return MovieService.searchMovies(movies, keyword);
+    public shared query func searchMovieByTitle(keyword : Text, page : Nat, pageSize : Nat) : async [Types.Movie] {
+        return MovieService.searchMovieByTitle(movies, keyword, page, pageSize);
+    };
+
+    public shared query func searchMovieByGenre(genre : Text, page : Nat, pageSize : Nat) : async [Types.Movie] {
+        return MovieService.searchMovieByGenre(movies, genre, page, pageSize);
+    };
+
+    public shared query func searchMovieByTitleUsingFilter(keyword : Text, genre : [Text], minRating : Float, page : Nat, pageSize : Nat) : async [Types.Movie] {
+        return MovieService.searchMovieByTitleUsingFilter(movies, keyword, genre, minRating, page, pageSize);
     };
 
     public func spoilerDetection(text : Text) : async Text {
@@ -114,7 +113,6 @@ actor {
         await http_request(url, request_body_json);
     };
 
-
     // REVIEW
     public func getReviewsByMovieId(movieId : Text) : async [Types.Review] {
         return ReviewService.getReviewsByMovieId(reviews, movieId);
@@ -126,15 +124,13 @@ actor {
         return ReviewService.addReview(reviews, principalId, movieId, comment, spoiler);
     };
 
-    public func addUpVote(principalId : Text, reviewId : Text) : async Result.Result<Types.Review, Text> {
-        return ReviewService.addUpVote(reviews, principalId, reviewId);
+    public func toggleUpvote(principalId : Text, reviewId : Text) : async Result.Result<Types.Review, Text> {
+        return ReviewService.toggleUpvote(reviews, principalId, reviewId);
     };
 
-    public func addDownVote(principalId : Text, reviewId : Text) : async Result.Result<Types.Review, Text> {
-        return ReviewService.addDownVote(reviews, principalId, reviewId);
+    public func toggleDownvote(principalId : Text, reviewId : Text) : async Result.Result<Types.Review, Text> {
+        return ReviewService.toggleDownvote(reviews, principalId, reviewId);
     };
-
-
 
     // UTILS
     public shared query func transform({

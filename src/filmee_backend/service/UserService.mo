@@ -53,7 +53,7 @@ module {
                     tier = "free";
                     bookmark = [];
                     profilePic = null;
-                    tierValidUntil = Time.now();
+                    tierValidUntil = Time.now()/1000000;
                 };
 
                 let newUserBalance : Types.UserBalance = {
