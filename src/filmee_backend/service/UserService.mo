@@ -52,8 +52,9 @@ module {
                     username = username;
                     tier = "free";
                     bookmark = [];
+                    histories = [];
                     profilePic = null;
-                    tierValidUntil = Time.now();
+                    tierValidUntil = Time.now()/1000000;
                 };
 
                 let newUserBalance : Types.UserBalance = {
@@ -111,6 +112,7 @@ module {
                     id = user.id;
                     tier = user.tier;
                     bookmark = user.bookmark;
+                    histories = user.histories;
                     tierValidUntil = user.tierValidUntil;
 
                     // UPDATE FIELD
@@ -151,12 +153,12 @@ module {
         switch (userBalances.get(principalId)) {
             case (?userBalance) {
                 if (tier == "tier1") {
-                    if(userBalance.balance < 20) {
+                    if(userBalance.balance < 5) {
                         return "Issuficient Balance";
                     } else {
                         let updatedBalance = {
                             id = principalId;
-                            balance : Nat = userBalance.balance - 20;
+                            balance : Nat = userBalance.balance - 5;
                         };
                         userBalances.put(principalId, updatedBalance);
                         
@@ -168,6 +170,7 @@ module {
                                     tier = "tier1";
                                     bookmark = user.bookmark;
                                     username = user.username;
+                                    histories = user.histories;
                                     profilePic = user.profilePic;
                                     tierValidUntil = user.tierValidUntil + 30 * 24 * 60 * 60 * 1000;
                                 };
@@ -180,13 +183,13 @@ module {
                         return "OK";
                     }
                 } else if(tier == "tier2") {
-                    if(userBalance.balance < 40) {
+                    if(userBalance.balance < 10) {
 
                         return "Issuficient Balance";
                     } else {
                         let newBalance = {
                             id = principalId;
-                            balance : Nat = userBalance.balance - 40;
+                            balance : Nat = userBalance.balance - 10;
                         };
                         userBalances.put(principalId, newBalance);
 
@@ -196,6 +199,7 @@ module {
                                     id = user.id;
                                     tier = "tier2";
                                     bookmark = user.bookmark;
+                                    histories = user.histories;
                                     username = user.username;
                                     profilePic = user.profilePic;
                                     tierValidUntil = user.tierValidUntil + 30 * 24 * 60 * 60 * 1000;
@@ -225,6 +229,96 @@ module {
             };
             case null {
                 return 0; // Return 0 (or some default value) if no balance exists
+            };
+        };
+    };
+
+    public func getBookmarks(users : Types.Users, principalId : Text) : [Types.Movie] {
+        switch (users.get(principalId)) {
+            case (?user) {
+                user.bookmark;
+            };
+            case null {
+                [];
+            };
+        };
+    };
+
+    public func addBookmark(users : Types.Users, movies : Types.Movies, principalId : Text, movieId : Text) : [Types.Movie] {
+        switch (users.get(principalId)) {
+            case (?user) {
+                let existingBookmark = Array.find<Types.Movie>(user.bookmark, func(m) { m.id == movieId });
+                switch (existingBookmark) {
+                    case (?_) {
+                        user.bookmark; // Movie already bookmarked, return current bookmarks
+                    };
+                    case null {
+                        switch (movies.get(movieId)) {
+                            case (?movie) {
+                                let newBookmarks = Array.append<Types.Movie>(user.bookmark, [movie]);
+                                let updatedUser : Types.User = {
+                                    id = user.id;
+                                    username = user.username;
+                                    tier = user.tier;
+                                    profilePic = user.profilePic;
+                                    tierValidUntil = user.tierValidUntil;
+                                    histories = user.histories;
+                                    bookmark = newBookmarks;
+                                };
+                                users.put(principalId, updatedUser);
+                                newBookmarks;
+                            };
+                            case null {
+                                user.bookmark; // Movie not found, return current bookmarks
+                            };
+                        };
+                    };
+                };
+            };
+            case null {
+                []; // User not found, return empty array
+            };
+        };
+    };
+
+    public func addHistory(users : Types.Users, principalId: Text, title : Text) : [Text] {
+        switch(users.get(principalId)) {
+            case(?user) { 
+                if(user.histories.size() == 5) {
+                    var newHistory : [Text] = Array.subArray<Text>(user.histories, 1, user.histories.size() - 1);
+                    newHistory := Array.append<Text>(newHistory, [title]);
+                    let newUser : Types.User = {
+                        id = user.id;
+                        tier = user.tier;
+                        bookmark = user.bookmark;
+                        histories = newHistory;
+                        tierValidUntil = user.tierValidUntil;
+                        username = user.username;
+                        profilePic = user.profilePic;
+                    };
+
+                    users.put(principalId, newUser);
+                    return newHistory;
+                } else {
+                    var newHistory : [Text] = user.histories;
+                    newHistory := Array.append<Text>(newHistory, [title]);
+                    let newUser : Types.User = {
+                        id = user.id;
+                        tier = user.tier;
+                        bookmark = user.bookmark;
+                        histories = newHistory;
+                        tierValidUntil = user.tierValidUntil;
+                        username = user.username;
+                        profilePic = user.profilePic;
+                    };
+
+                    users.put(principalId, newUser);
+                    return newHistory;
+                }
+
+             };
+            case(null) { 
+                return [];
             };
         };
     }

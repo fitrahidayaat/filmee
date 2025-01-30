@@ -22,7 +22,8 @@ module {
         profilePic : ?Text;
         tierValidUntil : Int;
 
-        bookmark : [Text];
+        bookmark : [Movie];
+        histories : [Text];
     };
 
     public type UserBalance = {
@@ -53,9 +54,10 @@ module {
         principalId : Text;
         movieId : Text;
         comment : Text;
-        upVote : Nat;
-        downVote : Nat;
+        upVote : [Text];
+        downVote : [Text];
         date : Int;
+        isSpoiler : Bool;
     };
 
     public type History = {
