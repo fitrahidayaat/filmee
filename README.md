@@ -1,7 +1,58 @@
-# `filmee`
+# `Filmee`
 
-Welcome to your new `filmee` project and to the Internet Computer development community. By default, creating a new project adds this README and some template files to your project directory. You can edit these template files to customize your project and to include your own code to speed up the development cycle.
+🎬 Filmee is your go-to platform for discovering with your favorite movies. Filmee helps users find new films, bookmark their favorites, write reviews, and even receive AI-driven recommendations.
 
+## Why Filmee?
+
+1. 🎭 Personalized Experience – Get movie recommendations tailored to your taste.
+2. 🔖 Bookmark – Save movies to your watchlist and never forget what you wanted to see.
+3. 📝 User Reviews – Share your thoughts and engage with a community of film lovers.
+4. 🤖 AI-Powered Recommendations – Discover movies based on your viewing history.
+5. 🚨 Spoiler Detection – Stay spoiler-free with our advanced detection system.
+6. 🎞 Multi-Genre Search – Find the perfect movie based on your favorite genres and ratings.
+
+## Features
+
+### User Management
+
+* Authenticate User – Securely sign in and manage user profiles.
+* Update Profile – Modify usernames and profile pictures.
+* Account Balance – Check and top-up balances for premium features.
+* Premium Subscription – Upgrade to premium tiers for exclusive benefits.
+
+### Movie Discovery
+
+* Search by Title & Genre – Explore films using filters like keywords, genre, and ratings.
+* AI-Based Recommendations – Get movie suggestions on your history and preferences.
+
+### Watchlist & History
+
+* Bookmark Movies – Save movies for later viewing.
+* View Watch History – Keep track of the movies you've watched.
+
+### Community Reviews & Engagement
+
+* Write Reviews – Share opinions and feedback on movies.
+* Upvote/Downvote Reviews – Engage with the community by voting on reviews.
+* Spoiler Detection – Keep reviews spoiler-free with our intelligent detection system.
+
+### AI-Powered Features
+
+* Movie Recommendations – Get movie suggestions.
+* User-Specific Recommendations – AI-generated recommendations tailored for each user.
+* Spoiler Detection – Automatic analysis to flag potential spoilers in reviews.
+
+## Team members
+* Alvaro Muyassar
+* Muhammad Gleam Mulyawan
+* Muhammad Ramdhan Fitra Hidayat
+* Nabil Hafiyyan Zihni
+* Rahmi Anisa
+
+### 🎬 Video Demonstration : 
+### 🔗 Mainnet Deployment : 
+
+## Get Started
 To get started, you might want to explore the project directory structure and the default configuration file. Working with this project in your development environment will not affect any production deployment or identity tokens.
 
 To learn more before you start working with `filmee`, see the following documentation available online:
@@ -59,7 +110,7 @@ If you are hosting frontend code somewhere without using DFX, you may need to ma
 - Write your own `createActor` constructor
 
 
-# Documentation
+# Backend Documentation
 ## Users
 ### authenticateUser
 ```bash
