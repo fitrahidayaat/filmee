@@ -1,9 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import React from "react";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Footer from "../Components/Footer";
 =======
+=======
+>>>>>>> 46dd3dd (fix: package.json typo)
 import React, { useState, useEffect } from "react";
 import { AuthService } from "../Service/AuthService";
 import { filmee_backend } from "../../../declarations/filmee_backend";
@@ -104,10 +107,20 @@ function App() {
     if (loading) {
         return <p>Loading...</p>;
     }
+<<<<<<< HEAD
 >>>>>>> 14a3929a952e8bbfd175cc6d3d95bac0870ca9b1
+=======
+=======
+import React from "react";
+import { useState } from "react";
+import { motion } from "framer-motion";
+import Footer from "../Components/Footer";
+>>>>>>> adff03b (feat: added design ui)
+>>>>>>> 46dd3dd (fix: package.json typo)
 
 const Navbar = () => {
     return (
+<<<<<<< HEAD
 <<<<<<< HEAD
       <nav className="flex justify-between items-center px-6 md:px-20 py-4 bg-black bg-opacity-50 fixed w-full top-0 z-50">
         <h1 className="text-white text-3xl font-bold">FILMEE</h1>
@@ -123,6 +136,8 @@ const Navbar = () => {
             </button>
           </a>
 =======
+=======
+>>>>>>> 46dd3dd (fix: package.json typo)
         <div>
             <h1 className="text-4xl">User Authentication with Principal</h1>
             {isAuthenticated ? (
@@ -163,7 +178,25 @@ const Navbar = () => {
                     </form>
                 </>
             )}
+<<<<<<< HEAD
 >>>>>>> 14a3929a952e8bbfd175cc6d3d95bac0870ca9b1
+=======
+=======
+      <nav className="flex justify-between items-center px-6 md:px-20 py-4 bg-black bg-opacity-50 fixed w-full top-0 z-50">
+        <h1 className="text-white text-3xl font-bold">FILMEE</h1>
+        <div className="space-x-4">
+          <a href="/login">
+            <button className="px-4 py-2 text-white border border-white rounded-lg hover:bg-white hover:text-black transition-all">
+              Log in
+            </button>
+          </a>
+          <a href="/register">
+            <button className="px-4 py-2 bg-white text-black rounded-lg hover:bg-gray-300 transition-all">
+              Sign up
+            </button>
+          </a>
+>>>>>>> adff03b (feat: added design ui)
+>>>>>>> 46dd3dd (fix: package.json typo)
         </div>
       </nav>
     );
