@@ -23,7 +23,11 @@ export class AuthService {
   }
 
   // Login using Internet Identity
+<<<<<<< HEAD
   async login() {
+=======
+  async register(username) {
+>>>>>>> 14a3929a952e8bbfd175cc6d3d95bac0870ca9b1
     if (!this.authClient) return;
     await this.authClient.login({
       identityProvider:
@@ -39,6 +43,7 @@ export class AuthService {
     });
   }
 
+<<<<<<< HEAD
   // Register a new user
   async register(username) {
     if (!this.authClient) return;
@@ -60,6 +65,23 @@ export class AuthService {
           console.error("Error during registration:", error);
           alert("Registration failed.");
         }
+=======
+        await filmee_backend.authenticateUser(username, this.principal.toText());
+        window.location.href = '/';
+      },
+    });
+  }
+
+  async login() {
+    if (!this.authClient) return;
+    await this.authClient.login({
+      identityProvider: process.env.DFX_NETWORK === "local" ? "https://identity.ic0.app" : "http://localhost:8000?canisterId=bd3sg-teaaa-aaaaa-qaaba-cai",
+      onSuccess: async () => {
+        this.principal = this.authClient.getIdentity().getPrincipal();
+        this.isAuthenticated = true;
+
+        window.location.href = '/';
+>>>>>>> 14a3929a952e8bbfd175cc6d3d95bac0870ca9b1
       },
     });
   }
