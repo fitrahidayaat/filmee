@@ -6,11 +6,10 @@ import DashboardPage from "./Pages/DashboardPage";
 import MoviesPage from "./Pages/MoviesPage";
 import TvSeriesPage from "./Pages/TVSeriesPage";
 import YourWatchListPage from "./Pages/YourWatchlistPage";
-import PlansPage from "./Pages/PlansPage";
 import ReviewFilmPage from "./Pages/ReviewMovie";
 import UserProfilePage from "./Pages/UserProfilePage";
 import { AuthService } from "./Service/AuthService";
-import OnBoardingPage from "./Pages/HomePage";
+import HomePage from "./Pages/HomePage";
 
 
 function AppWrapper() {
@@ -36,7 +35,7 @@ function AppWrapper() {
     <Router>
       
       <Routes>
-      <Route path="/" element={<OnBoardingPage />} />
+      <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage setIsAuthenticated={setIsAuthenticated} />} />
       <Route path="/register" element={<RegisterPage setIsAuthenticated={setIsAuthenticated} />} />
         <Route
@@ -63,7 +62,6 @@ function AppWrapper() {
           path="/profile"
           element={<UserProfilePage />}
         />
-        <Route path="/plans" element={<PlansPage />} />
         <Route path="*" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />} />
       </Routes>
     </Router>
