@@ -7,7 +7,6 @@
     "setup": "npm i && dfx canister create filmee_backend && dfx generate filmee_backend && dfx deploy",
     "start": "vite --port 3000",
     "prebuild": "dfx generate",
-    "tailwind": "npx @tailwindcss/cli -i ./src/input.css -o ./src/output.css --watch",
     "build": "tsc && vite build",
     "format": "prettier --write \"src/**/*.{json,js,jsx,ts,tsx,css,scss}\""
   },

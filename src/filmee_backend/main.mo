@@ -1,16 +1,10 @@
-import Int "mo:base/Int";
 import Array "mo:base/Array";
 import HashMap "mo:base/HashMap";
-import Principal "mo:base/Principal";
-import Bool "mo:base/Bool";
 import Nat "mo:base/Nat";
 import Text "mo:base/Text";
 import Result "mo:base/Result";
 import Iter "mo:base/Iter";
-import Char "mo:base/Char";
-import Time "mo:base/Time";
 import Blob "mo:base/Blob";
-import Error "mo:base/Error";
 import Cycles "mo:base/ExperimentalCycles";
 import IC "ic:aaaaa-aa";
 
