@@ -29,7 +29,7 @@ export default function WatchlistPage() {
         const blob = new Blob([user[0].profilePic[0]]);
         const url = URL.createObjectURL(blob);
         setImagePreview(url);
-        
+
         const defaultMovies = await filmee_backend.getBookmarks(principal.toText());
         setMovies(defaultMovies);
       } catch (error) {
@@ -77,7 +77,7 @@ export default function WatchlistPage() {
 
         <div className="hidden md:flex items-center relative">
           <button onClick={() => setProfileMenuOpen(!profileMenuOpen)}>
-            <img src={imagePreview}  alt="" className="h-14 w-14 object-cover rounded-full cursor-pointer" />
+            <img src={imagePreview} alt="" className="h-14 w-14 object-cover rounded-full cursor-pointer" />
           </button>
           {profileMenuOpen && (
             <div className="absolute right-0 mt-2 w-40 bg-gray-900 text-white mt-30 shadow-lg rounded-lg overflow-hidden z-50">

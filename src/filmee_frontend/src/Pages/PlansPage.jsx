@@ -14,7 +14,7 @@ export default function PlansPage() {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [imagePreview, setImagePreview] = useState();
-  const {principal} = useAuth();
+  const {principal, logout} = useAuth();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -30,13 +30,8 @@ export default function PlansPage() {
   }, [principal]);
 
   const handleLogout = async () => {
-    try {
-      await authService.logout();
-      localStorage.removeItem("isAuthenticated");
-      navigate("/login", { replace: true });
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
+    logout();
+    navigate("/");
   };
 
   const handleProfile = () => {

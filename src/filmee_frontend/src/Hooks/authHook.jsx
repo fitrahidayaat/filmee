@@ -52,9 +52,10 @@ export const useAuth = () => {
                 setPrincipal(identity);
                 setIsAuthenticated(true);
                 
-                const res = await filmee_backend.getUserById("user", identity.toText());
+                let res = await filmee_backend.authenticateUser("user", identity.toText());
+                res = await filmee_backend.getUserById(identity.toText());
+
                 setUser(res[0]);
-                
                 window.location.href = '/dashboard';
             },
         });

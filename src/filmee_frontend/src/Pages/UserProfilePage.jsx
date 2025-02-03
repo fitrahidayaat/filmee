@@ -108,33 +108,33 @@ export default function DashboardPage() {
   return (
     <>
       <div className="min-h-screen bg-black flex justify-center items-center px-4 montserrat">
-      {showPopup && (
-        <div className="fixed inset-0 flex items-center justify-center bg-transparent z-100">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-xl font-bold mb-4">Add Funds</h2>
-            <input
-              type="number"
-              placeholder="Enter amount"
-              onChange={(e) => setChange(Number(e.target.value))}
-              className="w-full p-2 border border-gray-300 rounded-lg mb-4"
-            />
-            <div className="flex justify-end space-x-2">
-              <button
-                className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
-                onClick={handleClosePopup}
-              >
-                Cancel
-              </button>
-              <button
-                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-                onClick={() => handleAddFunds(change)} // Example: Add $100
-              >
-                Add Funds
-              </button>
+        {showPopup && (
+          <div className="fixed inset-0 flex items-center justify-center bg-transparent z-100">
+            <div className="bg-white p-6 rounded-lg shadow-lg">
+              <h2 className="text-xl font-bold mb-4">Add Funds</h2>
+              <input
+                type="number"
+                placeholder="Enter amount"
+                onChange={(e) => setChange(Number(e.target.value))}
+                className="w-full p-2 border border-gray-300 rounded-lg mb-4"
+              />
+              <div className="flex justify-end space-x-2">
+                <button
+                  className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
+                  onClick={handleClosePopup}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                  onClick={() => handleAddFunds(change)} // Example: Add $100
+                >
+                  Add Funds
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
         <div className="bg-gray-900 text-white p-8 rounded-2xl shadow-xl max-w-3xl w-full">
           {/* Navbar */}
@@ -153,7 +153,7 @@ export default function DashboardPage() {
             <div className="hidden md:flex items-center relative">
               <button onClick={() => setProfileMenuOpen(!profileMenuOpen)}>
                 {/* <FaUserCircle className="text-white text-3xl" /> */}
-                  <img src={imagePreview} alt="" className="h-14 w-14 object-cover rounded-full cursor-pointer" />
+                <img src={imagePreview} alt="" className="h-14 w-14 object-cover rounded-full cursor-pointer" />
               </button>
               {profileMenuOpen && (
                 <div className="absolute right-0 mt-2 w-40 bg-gray-900 text-white mt-30 shadow-lg rounded-lg overflow-hidden z-50">
