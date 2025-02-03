@@ -305,7 +305,7 @@ export default function MoviePage() {
       />
 
       {/* Reviews */}
-      <div className="md:px-20 mt-10">
+      <div className="px-10 md:px-20 mt-10">
         <div className="flex gap-8 items-center mb-10">
           <h2 className="text-3xl font-bold">Reviews</h2>
           {spoilerDetection}
