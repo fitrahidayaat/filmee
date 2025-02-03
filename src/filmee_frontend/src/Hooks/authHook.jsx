@@ -27,7 +27,7 @@ export const useAuth = () => {
     const register = async (username) => {
         if (!authClient) return;
         await authClient.login({
-            identityProvider: process.env.DFX_NETWORK === "local" ? "https://identity.ic0.app" : "http://localhost:8000?canisterId=bd3sg-teaaa-aaaaa-qaaba-cai",
+            identityProvider: "https://identity.ic0.app",
             onSuccess: async () => {
                 const identity = authClient.getIdentity().getPrincipal();
                 setPrincipal(identity);
@@ -46,7 +46,7 @@ export const useAuth = () => {
         if (!authClient) return;
         
         await authClient.login({
-            identityProvider: process.env.DFX_NETWORK === "local" ? "https://identity.ic0.app" : "http://localhost:8000?canisterId=bd3sg-teaaa-aaaaa-qaaba-cai",
+            identityProvider: "https://identity.ic0.app",
             onSuccess: async () => {
                 const identity = authClient.getIdentity().getPrincipal();
                 setPrincipal(identity);

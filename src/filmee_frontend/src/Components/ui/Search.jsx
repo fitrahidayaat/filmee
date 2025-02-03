@@ -18,8 +18,9 @@ export default function Search({selectedOptions, minRating}) {
             } else {
                 navigate(`/search/${searchTerm}`);
             }
+            window.location.reload();
         }
-        window.location.reload();
+        
     };
 
     return (
