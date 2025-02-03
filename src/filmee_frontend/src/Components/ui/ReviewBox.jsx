@@ -37,7 +37,6 @@ export default function ReviewBox({ review, isHideSpoiler }) {
         // Add if doesn't exist
         review.upVote = [...review.upVote, principal.toText()];
     }
-    console.log(res);
   };
 
   const handleDownvote = async () => {
@@ -50,7 +49,6 @@ export default function ReviewBox({ review, isHideSpoiler }) {
         // Add if doesn't exist
         review.downVote = [...review.downVote, principal.toText()];
     }
-    console.log(res);
   };
 
   const renderComment = () => {

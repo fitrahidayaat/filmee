@@ -52,7 +52,7 @@ export default function MoviePage() {
         setTier(user[0].tier);
 
         const rvw = await filmee_backend.getReviewsByMovieId(m[0].id);
-        setReviews(rvw);
+        setReviews(rvw.sort((a, b) => Number(b.date) - Number(a.date)));
         await filmee_backend.addHistory(principal.toText(), m[0].title);
 
         // If histories is empty, fetch movies from a different backend call
@@ -107,7 +107,7 @@ export default function MoviePage() {
     const res = await filmee_backend.addReview(principal.toText(), movie.id, e.target.comment.value);
     const rvw = await filmee_backend.getReviewsByMovieId(movie.id);
     e.target.comment.value = "";
-    setReviews(rvw);
+    setReviews(rvw.sort((a, b) => Number(b.date) - Number(a.date)));
   }
 
   const scroll = (ref, direction) => {
