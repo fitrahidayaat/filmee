@@ -19,6 +19,7 @@ export default function Search({selectedOptions, minRating}) {
                 navigate(`/search/${searchTerm}`);
             }
         }
+        window.location.reload();
     };
 
     return (

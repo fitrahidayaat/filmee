@@ -39,12 +39,9 @@ export default function SearchPage() {
         setImagePreview(url);
         // If histories is empty, fetch movies from a different backend call
         let defaultMovies;
-        console.log(genre, rating,  user[0].tier);
         if((user[0].tier == "tier1" || user[0].tier == "tier2") && genre && rating != undefined) {  
-          console.log("asdsa");
           defaultMovies = await filmee_backend.searchMovieByTitleUsingFilter(term, genre, rating, 0, 20);
         } else {
-          console.log("tes");
           defaultMovies = await filmee_backend.searchMovieByTitle(params.term, 0, 20);
         }
         setUser(user[0]);
