@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { FaChevronLeft, FaChevronRight, FaUserCircle, FaSignOutAlt, FaSearch, FaBars, FaTimes, FaUser } from "react-icons/fa";
+import { Link, useNavigate, useParams, useSearchParams  } from "react-router-dom";
+import { FaChevronLeft, FaChevronRight, FaUserCircle, FaSignOutAlt, FaSearch, FaBars, FaTimes, FaUser, FaFilter } from "react-icons/fa";
 import { useAuth } from "../Hooks/authHook";
 import Footer from "../Components/Footer";
 import { filmee_backend } from "../../../declarations/filmee_backend";
 import { ClipLoader } from 'react-spinners';  // Import the loader
 import Search from "../Components/ui/Search";
 
-export default function WatchlistPage() {
+export default function SearchPage() {
   const navigate = useNavigate();
   const { isAuthenticated, loading, logout, principal } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -16,6 +16,13 @@ export default function WatchlistPage() {
   const [movies, setMovies] = useState();
   const params = useParams();
   const [imagePreview, setImagePreview] = useState();
+  const [searchParams] = useSearchParams();
+  const term = params.term;
+  let selectedOptions = searchParams.get('selectedOptions');
+  if(selectedOptions) {
+    selectedOptions = searchParams.get('selectedOptions').split(',')
+  }
+  const minRating = Number(searchParams.get('minRating'));
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -31,7 +38,12 @@ export default function WatchlistPage() {
         const url = URL.createObjectURL(blob);
         setImagePreview(url);
         // If histories is empty, fetch movies from a different backend call
-        const defaultMovies = await filmee_backend.searchMovieByTitle(params.term, 0, 20);
+        let defaultMovies;
+        if((user[0].tier == "tier1" || user[0].tier == "tier2") && selectedOptions && minRating) {  
+          defaultMovies = await filmee_backend.searchMovieByTitleUsingFilter(term, selectedOptions, minRating, 0, 20);
+        } else {
+          defaultMovies = await filmee_backend.searchMovieByTitle(params.term, 0, 20);
+        }
         setMovies(defaultMovies);
       } catch (error) {
         console.error("Error fetching user or movies:", error);
@@ -74,7 +86,7 @@ export default function WatchlistPage() {
             <img src={imagePreview} alt="" className="h-14 w-14 object-cover rounded-full cursor-pointer" />
           </button>
           {profileMenuOpen && (
-            <div className="absolute right-0 mt-2 w-40 bg-gray-900 text-white mt-30 shadow-lg rounded-lg overflow-hidden z-50">
+            <div className="absolute right-0 w-40 bg-gray-900 text-white mt-30 shadow-lg rounded-lg overflow-hidden z-50">
               <button onClick={handleProfile} className="flex items-center px-4 py-2 hover:bg-gray-700 w-full text-left">
                 <FaUser className="mr-2" /> Profile
               </button>

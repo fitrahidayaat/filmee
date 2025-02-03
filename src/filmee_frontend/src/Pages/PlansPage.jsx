@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaSearch, FaBars, FaTimes, FaUserCircle, FaUser, FaSignOutAlt } from "react-icons/fa";
+import { FaSearch, FaBars, FaTimes, FaUserCircle, FaUser, FaSignOutAlt, FaFilter  } from "react-icons/fa";
 import { AuthService } from "../Service/AuthService";
 import Footer from "../Components/Footer";
 import Search from "../Components/ui/Search";
@@ -15,13 +15,12 @@ export default function PlansPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [imagePreview, setImagePreview] = useState();
   const {principal, logout} = useAuth();
+  const [user, setUser] = useState();
 
   useEffect(() => {
     const fetchUser = async () => {
       const user = await filmee_backend.getUserById(principal.toText());
-      if (user?.profilePic) {
-        // Convert blob (Uint8Array) to data URL
-      }
+      setUser(user[0]);
       const blob = new Blob([user[0].profilePic[0]]);
       const url = URL.createObjectURL(blob);
       setImagePreview(url);
@@ -48,6 +47,41 @@ export default function PlansPage() {
     navigate("/profile");
   };
 
+  const [showRating, setShowRating] = useState(false);
+  const [minRating, setMinRating] = useState(0);
+
+  const options = [
+    "Action",
+    "Adventure",
+    "Animation",
+    "Comedy",
+    "Crime",
+    "Documentary",
+    "Drama",
+    "Family",
+    "Fantasy",
+    "History",
+    "Horror",
+    "Mystery",
+    "Romance",
+    "Science Fiction",
+    "Thriller",
+    "TV Movie",
+  ];
+  // State to track selected options
+  const [selectedOptions, setSelectedOptions] = useState([]);
+
+  // Handle checkbox change
+  const handleCheckboxChange = (option) => {
+    if (selectedOptions.includes(option)) {
+      // If already selected, remove it
+      setSelectedOptions(selectedOptions.filter((item) => item !== option));
+    } else {
+      // If not selected, add it
+      setSelectedOptions([...selectedOptions, option]);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black text-white flex flex-col justify-between montserrat">
       {/* Navbar */}
@@ -55,21 +89,53 @@ export default function PlansPage() {
         <h1 className="text-3xl font-bold tracking-wide">FILMEE</h1>
 
         <div className="hidden md:flex space-x-6">
-          <Link to="/dashboard" className="text-large hover:text-gray-400">Home</Link>
+          <Link to="/dashboard" className="text-large text-red-500">Home</Link>
           <Link to="/watchlist" className="text-large hover:text-gray-400">Your Watchlist</Link>
         </div>
+        <div className="flex justify-center items-center gap-5">
+          <div className="hidden md:flex items-center bg-gray-800 px-4 py-2 rounded-full">
+            <Search selectedOptions={selectedOptions} minRating={minRating} />
+          </div>
+          <div className="relative">
+            {user && user.tier != "free" && <FaFilter onClick={() => { setShowRating((prev) => !prev) }} className="cursor-pointer" />}
 
-        <div className="hidden md:flex items-center bg-gray-800 px-4 py-2 rounded-full">
-          <Search />
+            {showRating && (
+              <>
+                <div className="absolute right-0 w-200 bg-gray-900 text-white mt-4 shadow-lg rounded-lg overflow-hidden z-50 p-10">
+                  <h2 className="text-xl font-bold mb-4">Filter</h2>
+                  <div className="flex gap-8 mb-4">
+                    <label htmlFor="">Min. Rating</label>
+                    <input type="number" className="w-80 h-4 text-white" max="10" min="0" defaultValue={0} onChange={(e) => { setMinRating(Number(e.target.value)) }} />
+                  </div>
+                  <h2>Genre</h2>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1">
+                    {options.map((option, index) => (
+                      <label key={index} className="flex items-center space-x-2 bg-transparent p-3 rounded-md shadow-sm text-white  hover:text-gray-700 transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={selectedOptions.includes(option)}
+                          onChange={() => handleCheckboxChange(option)}
+                          className="form-checkbox h-5 w-5 text-white rounded"
+                        />
+                        <span className=" ">{option}</span>
+                      </label>
+                    ))}
+                  </div>
+
+                </div>
+              </>
+            )}
+
+          </div>
         </div>
 
         <div className="hidden md:flex items-center relative">
           <button onClick={() => setProfileMenuOpen(!profileMenuOpen)}>
-            {/* <FaUserCircle className="text-white text-3xl" /> */}
-            <img src={imagePreview}  alt="" className="h-14 w-14 object-cover rounded-full cursor-pointer" />
+            {user && user.profilePic[0] ? <img src={imagePreview} alt="" className="h-14 w-14 object-cover rounded-full cursor-pointer" /> : <FaUserCircle className="w-10 h-10" />}
+
           </button>
           {profileMenuOpen && (
-            <div className="absolute right-0 mt-2 w-40 bg-gray-900 text-white mt-30 shadow-lg rounded-lg overflow-hidden z-50">
+            <div className="absolute right-0 w-40 bg-gray-900 text-white mt-30 shadow-lg rounded-lg overflow-hidden z-50">
               <button onClick={handleProfile} className="flex items-center px-4 py-2 hover:bg-gray-700 w-full text-left">
                 <FaUser className="mr-2" /> Profile
               </button>
@@ -109,6 +175,7 @@ export default function PlansPage() {
           <div className="bg-white text-black rounded-lg shadow-lg p-6 w-full max-w-xs text-center">
             <h2 className="text-2xl font-bold">Free</h2>
             <p className="text-gray-600 mt-2">• Movie recommendations</p>
+            <p className="text-gray-600">• Movie bookmarking</p>
             <button className="bg-gray-300 text-gray-500 font-semibold py-2 px-6 rounded-lg w-full mt-4 cursor-not-allowed">
               Current Plan
             </button>
@@ -120,6 +187,7 @@ export default function PlansPage() {
             <p className="text-3xl font-extrabold">ICP <span className="text-4xl">5</span>/mo</p>
             <p className="text-gray-600 mt-2">• Movie recommendations</p>
             <p className="text-gray-600">• Advanced search & filter</p>
+            <p className="text-gray-600">• Movie bookmarking</p>
             <Link to="/register">
               <button className="bg-black text-white font-semibold py-2 px-6 rounded-lg w-full mt-4 hover:bg-gray-800 transition" onClick={handleTier1}>
                 Purchase

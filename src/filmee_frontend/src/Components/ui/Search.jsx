@@ -3,14 +3,21 @@ import { useNavigate } from "react-router-dom";
 import { FaSearch } from "react-icons/fa";
 import { filmee_backend } from "../../../../declarations/filmee_backend";
 
-export default function Search() {
+export default function Search({selectedOptions, minRating}) {
     const [searchTerm, setSearchTerm] = useState("");
     const navigate = useNavigate();
-    
     const handleSubmit = (e) => {
         e.preventDefault();
         if (searchTerm.trim()) {
-            navigate(`/search/${searchTerm}`);
+            if(selectedOptions && minRating) {
+                navigate(`/search/${searchTerm}?selectedOptions=${selectedOptions}&&minRating=${minRating}`);
+            } else if(selectedOptions) {
+                navigate(`/search/${searchTerm}?selectedOptions=${selectedOptions}`);
+            } else if(minRating) {
+                navigate(`/search/${searchTerm}?minRating=${minRating}`);
+            } else {
+                navigate(`/search/${searchTerm}`);
+            }
         }
     };
 

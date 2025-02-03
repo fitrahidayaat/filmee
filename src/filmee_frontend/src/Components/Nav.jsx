@@ -34,7 +34,7 @@ export default function Nav(searchTerm, setSearchTerm) {
             <FaUserCircle className="text-white text-2xl" />
           </button>
           {profileMenuOpen && (
-            <div className="absolute right-0 mt-2 w-40 bg-gray-900 text-white mt-30 shadow-lg rounded-lg overflow-hidden z-50">
+            <div className="absolute right-0 w-40 bg-gray-900 text-white mt-30 shadow-lg rounded-lg overflow-hidden z-50">
               <button onClick={handleLogout} className="flex items-center px-4 py-2 hover:bg-gray-700 w-full text-left">
                 <FaSignOutAlt className="mr-2" /> Logout
               </button>
