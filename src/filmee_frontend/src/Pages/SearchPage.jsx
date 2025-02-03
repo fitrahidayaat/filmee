@@ -31,7 +31,7 @@ export default function WatchlistPage() {
         const url = URL.createObjectURL(blob);
         setImagePreview(url);
         // If histories is empty, fetch movies from a different backend call
-        const defaultMovies = await filmee_backend.searchMovieByTitle(params.term, 0, 10);
+        const defaultMovies = await filmee_backend.searchMovieByTitle(params.term, 0, 20);
         setMovies(defaultMovies);
       } catch (error) {
         console.error("Error fetching user or movies:", error);

@@ -193,6 +193,7 @@ export default function DashboardPage() {
             <div className="relative group">
               <label htmlFor="upload-photo" className="cursor-pointer">
                 {imagePreview ? (
+                  
                   <img
                     src={imagePreview}
                     alt="Profile"

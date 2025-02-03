@@ -1,5 +1,7 @@
 import {motion} from "framer-motion";
 import React, { useState } from "react";
+import Footer from "../Components/Footer";
+import bg from "../../public/bg.png";
 
 // Main HomePage Component
 export default function HomePage() {
@@ -19,7 +21,16 @@ export default function HomePage() {
   ];
 
   return (
-    <div>
+    <div
+      style={{
+        backgroundImage: `url(/bg.jpg)`, // Use the imported bg image
+        backgroundSize: "cover", // Ensure the image covers the entire div
+        backgroundPosition: "center", // Center the background image
+        backgroundRepeat: "no-repeat", // Prevent the image from repeating
+        minHeight: "100vh", // Ensure the div covers the full viewport height
+      }}
+      className="montserrat"
+    >
       {/* Navbar */}
       <nav className="flex justify-between items-center px-6 md:px-20 py-4 bg-black bg-opacity-50 fixed w-full top-0 z-50">
         <h1 className="text-white text-3xl font-bold">FILMEE</h1>
@@ -40,7 +51,7 @@ export default function HomePage() {
       {/* Hero Section */}
       <div
         className="h-screen flex flex-col justify-center items-center text-center text-white"
-        style={{ backgroundImage: "url(/bg.jpg)", backgroundSize: "cover", backgroundPosition: "center" }}
+        
       >
         <motion.h1
           className="text-5xl md:text-6xl font-bold mb-4"
@@ -63,7 +74,7 @@ export default function HomePage() {
       {/* Benefits Section */}
       <div
         className="py-20 text-white text-center"
-        style={{ backgroundImage: "url(/bg.jpg)", backgroundSize: "cover", backgroundPosition: "center" }}
+        style={{ backgroundImage: "", backgroundSize: "cover", backgroundPosition: "center" }}
       >
         <h2 className="text-4xl font-bold mb-10">Why Choose FILMEE?</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-10 md:px-20">
@@ -85,7 +96,7 @@ export default function HomePage() {
       {/* FAQ Section */}
       <div
         className="py-20 text-white text-center px-10 md:px-40"
-        style={{ backgroundImage: "url(/bg.jpg)", backgroundSize: "cover", backgroundPosition: "center" }}
+        style={{ backgroundImage: "", backgroundSize: "cover", backgroundPosition: "center" }}
       >
         <h2 className="text-4xl font-bold mb-10">Frequently Asked Questions</h2>
         <div className="space-y-4">
@@ -105,14 +116,7 @@ export default function HomePage() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-black text-white py-6 mt-20 text-center">
-        <p>&copy; 2025 FILMEE. All Rights Reserved.</p>
-        <div className="flex justify-center space-x-6 mt-4">
-          <a href="https://twitter.com" className="hover:text-gray-400">Twitter</a>
-          <a href="https://facebook.com" className="hover:text-gray-400">Facebook</a>
-          <a href="https://instagram.com" className="hover:text-gray-400">Instagram</a>
-        </div>
-      </footer>
+      <Footer/>
     </div>
   );
 }

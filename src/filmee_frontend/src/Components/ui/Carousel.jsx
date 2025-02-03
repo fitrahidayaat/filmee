@@ -24,7 +24,7 @@ const Carousel = forwardRef(({ title, movies, scroll }, ref) => {
         >
           {movies ? (
             movies.map((movie, index) => (
-              <Link
+              <Link 
                 to={`/movie/${movie.title}`}
                 key={index}
                 className="min-w-[250px] bg-gray-800 p-4 rounded-4xl shadow-lg relative transform transition-all duration-300 scale-95 hover:scale-100 hover:shadow-xl hover:z-20"

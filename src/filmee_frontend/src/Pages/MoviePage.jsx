@@ -46,6 +46,7 @@ export default function MoviePage() {
         navigate("/login"); // Redirect to homepage if not authenticated
         return;
       }
+      window.scrollTo(0, 0);
 
       try {
         const user = await filmee_backend.getUserById(principal.toText());
@@ -166,7 +167,7 @@ export default function MoviePage() {
 
         <div className="hidden md:flex items-center relative">
           <button onClick={() => setProfileMenuOpen(!profileMenuOpen)}>
-          {user && user.profilePic[0] ? <img src={imagePreview}  alt="" className="h-14 w-14 object-cover rounded-full cursor-pointer" /> : <FaUserCircle className="w-10 h-10"/>}
+            {user && user.profilePic[0] ? <img src={imagePreview} alt="" className="h-14 w-14 object-cover rounded-full cursor-pointer" /> : <FaUserCircle className="w-10 h-10" />}
           </button>
           {profileMenuOpen && (
             <div className="absolute right-0 mt-2 w-40 bg-gray-900 text-white mt-30 shadow-lg rounded-lg overflow-hidden z-50">
@@ -244,7 +245,7 @@ export default function MoviePage() {
 
         {/* add review */}
         <div className="flex gap-8">
-          <img src={imagePreview} alt="profile pic" className="rounded-full h-20 w-20 object-cover" />
+          {user && user.profilePic[0] ? <img src={imagePreview} alt="" className="h-20 w-20 object-cover rounded-full cursor-pointer" /> : <FaUserCircle className="w-20 h-20" />}
           <div className="w-full flex flex-col gap-2">
             <h3>{user ? user.username : ""}</h3>
             <form onSubmit={handleSubmit} className="flex gap-4 items-center">
