@@ -12,7 +12,7 @@ export default function DashboardPage() {
   const [menuOpen, setMenuOpen] = useState(false); // Untuk mobile menu toggle
   const [profileMenuOpen, setProfileMenuOpen] = useState(false); // Untuk menu profil dropdown
   const [balance, setBalance] = useState(0); // Contoh saldo
-  const plan = "Free"; // Contoh plan user
+  const [plan, setPlan] = useState("Free");
   const { principal } = useAuth();
   const [imagePreview, setImagePreview] = useState();
   const [user, setUser] = useState();
@@ -28,6 +28,7 @@ export default function DashboardPage() {
       const blob = new Blob([user[0].profilePic[0]]);
       const url = URL.createObjectURL(blob);
       setImagePreview(url);
+      setPlan(user[0].tier);
       setUser(user[0]);
       setUsername(user[0].username);
 

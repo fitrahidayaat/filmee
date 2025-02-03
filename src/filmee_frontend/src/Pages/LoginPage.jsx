@@ -32,13 +32,6 @@ export default function LoginPage({ setIsAuthenticated }) {
 
           <form onSubmit={handleSubmit} className="space-y-4">
 
-            <div className="flex justify-between text-sm text-gray-400">
-              <div className="flex items-center">
-                <input type="checkbox" className="mr-2" />
-                <span>Remember Me</span>
-              </div>
-            </div>
-
             <button
               type="submit"
               className="w-full bg-white text-black font-semibold py-2 px-4 rounded-lg hover:bg-gray-200 transition-all duration-200"
