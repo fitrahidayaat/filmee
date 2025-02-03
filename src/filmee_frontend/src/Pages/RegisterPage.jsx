@@ -1,37 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthService } from "../Service/AuthService";
+import { useAuth } from "../Hooks/authHook"; // Import useAuth hook
 import Footer from "../Components/Footer"; // Import Footer
 
-export default function RegisterPage({ setIsAuthenticated }) {
-  const [authService, setAuthService] = useState(null);
+export default function RegisterPage() {
+  const { isAuthenticated, loading, register } = useAuth(); // Use useAuth hook to get authentication state and register method
   const [username, setUsername] = useState("");
   const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticatedState] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const auth = new AuthService();
-    auth.init().then(() => {
-      setAuthService(auth);
-      setIsAuthenticatedState(auth.isAuthenticated); // Set the state of authentication
-      setLoading(false);
-    });
-  }, []);
-
-  // If the user is authenticated, redirect them to the login page or dashboard
-  useEffect(() => {
     if (isAuthenticated) {
-      navigate("/dashboard"); // Redirect to dashboard if already logged in
+      navigate("/dashboard"); // Redirect to dashboard if already authenticated
     }
   }, [isAuthenticated, navigate]);
 
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      await authService.register(username);
-      setIsAuthenticated(true); // Set authenticated to true
+      await register(username); // Call register function from useAuth hook
       navigate("/login"); // Redirect to login page after successful registration
     } catch (error) {
       setMessage(error.message);
@@ -63,7 +50,7 @@ export default function RegisterPage({ setIsAuthenticated }) {
 
             <button
               type="submit"
-              className="w-full bg-white text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-200 transition-all duration-200"
+              className="w-full bg-white  font-semibold py-2 px-4 rounded-lg hover:bg-gray-200 transition-all duration-200"
             >
               Register
             </button>

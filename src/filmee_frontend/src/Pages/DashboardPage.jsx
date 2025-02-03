@@ -1,115 +1,130 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaChevronLeft, FaChevronRight, FaUserCircle, FaSignOutAlt, FaSearch, FaBars, FaTimes } from "react-icons/fa";
-import { AuthService } from "../Service/AuthService";
+import { FaChevronLeft, FaChevronRight, FaUserCircle, FaSignOutAlt, FaSearch, FaBars, FaTimes, FaUser } from "react-icons/fa";
+import { useAuth } from "../Hooks/authHook";
 import Footer from "../Components/Footer";
+import { filmee_backend } from "../../../declarations/filmee_backend";
+import { ClipLoader } from 'react-spinners';  // Import the loader
+import Carousel from "../Components/ui/Carousel";
+import Search from "../Components/ui/Search";
 
-const movies = [
-  { title: "Silent Hill 2: Where The Shadow Returns", description: "A supernatural horror journey into a fog-covered town filled with dark secrets.", image: "/s-l1200.jpg", genre: "Horror" },
-  { title: "Spider-Man: Across The Spider-Verse", description: "Miles Morales explores the multiverse.", image: "/Spider-Man-Across-the-Spider-Verse-Poster.jpg", genre: "Action" },
-  { title: "Silent Hill (2006)", description: "A horror mystery set in a fog-covered town.", image: "/SpiderManFarFromHomeTheatrical.jpg", genre: "Horror" },
-  { title: "Silent Hill 2: Where The Shadow Returns", description: "A supernatural horror journey into a fog-covered town filled with dark secrets.", image: "/s-l1200.jpg", genre: "Horror" },
-  { title: "Spider-Man: Across The Spider-Verse", description: "Miles Morales explores the multiverse.", image: "/Spider-Man-Across-the-Spider-Verse-Poster.jpg", genre: "Action" },
-  { title: "Silent Hill (2006)", description: "A horror mystery set in a fog-covered town.", image: "/SpiderManFarFromHomeTheatrical.jpg", genre: "Horror" },
-  { title: "Silent Hill 2: Where The Shadow Returns", description: "A supernatural horror journey into a fog-covered town filled with dark secrets.", image: "/s-l1200.jpg", genre: "Horror" },
-  { title: "Spider-Man: Across The Spider-Verse", description: "Miles Morales explores the multiverse.", image: "/Spider-Man-Across-the-Spider-Verse-Poster.jpg", genre: "Action" },
-  { title: "Silent Hill (2006)", description: "A horror mystery set in a fog-covered town.", image: "/SpiderManFarFromHomeTheatrical.jpg", genre: "Horror" },
-  { title: "Silent Hill 2: Where The Shadow Returns", description: "A supernatural horror journey into a fog-covered town filled with dark secrets.", image: "/s-l1200.jpg", genre: "Horror" },
-  { title: "Spider-Man: Across The Spider-Verse", description: "Miles Morales explores the multiverse.", image: "/Spider-Man-Across-the-Spider-Verse-Poster.jpg", genre: "Action" },
-  { title: "Silent Hill (2006)", description: "A horror mystery set in a fog-covered town.", image: "/SpiderManFarFromHomeTheatrical.jpg", genre: "Horror" },
-  { title: "Silent Hill 2: Where The Shadow Returns", description: "A supernatural horror journey into a fog-covered town filled with dark secrets.", image: "/s-l1200.jpg", genre: "Horror" },
-  { title: "Spider-Man: Across The Spider-Verse", description: "Miles Morales explores the multiverse.", image: "/Spider-Man-Across-the-Spider-Verse-Poster.jpg", genre: "Action" },
-  { title: "Silent Hill (2006)", description: "A horror mystery set in a fog-covered town.", image: "/SpiderManFarFromHomeTheatrical.jpg", genre: "Horror" },
-];
-
-export default function DashboardPage({ setIsAuthenticated }) {
+export default function DashboardPage() {
   const navigate = useNavigate();
-  const authService = new AuthService();
-  const carouselRef = useRef(null);
-  const [isAuthenticated, setIsAuthenticatedState] = useState(
-    localStorage.getItem("isAuthenticated") === "true"
-  );
+  const { isAuthenticated, loading, logout, principal } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [movies, setMovies] = useState();
+  const [horror, setHorror] = useState();
+  const [action, setAction] = useState();
+  const [adventure, setAdventure] = useState();
+  const [imagePreview, setImagePreview] = useState();
+  const [user, setUser] = useState();
+
+  // Refs for carousels
+  const youMightLikeRef = useRef(null);
+  const horrorRef = useRef(null);
+  const actionRef = useRef(null);
+  const adventureRef = useRef(null);
 
   useEffect(() => {
-    authService.init().then(() => {
-      if (!authService.isAuthenticated) {
-        setIsAuthenticated(false);
-        setIsAuthenticatedState(false);
-        localStorage.removeItem("isAuthenticated"); // Hapus session jika tidak valid
-        navigate("/login", { replace: true }); // Redirect ke login jika tidak autentikasi
-      } else {
-        setIsAuthenticatedState(true);
+    const fetchUser = async () => {
+      if (!loading && !isAuthenticated) {
+        navigate("/login"); // Redirect to homepage if not authenticated
+        return;
       }
-    });
-  }, [navigate]);
 
-  const handleLogout = async () => {
-    try {
-      await authService.logout();
-      setIsAuthenticated(false);
-      setIsAuthenticatedState(false);
-      localStorage.removeItem("isAuthenticated");
-      navigate("/login", { replace: true });
-    } catch (error) {
-      console.error("Logout failed:", error);
+      try {
+        const user = await filmee_backend.getUserById(principal.toText());
+        setUser(user);
+        const histories = user[0].histories;
+
+        const blob = new Blob([user[0].profilePic[0]]);
+        const url = URL.createObjectURL(blob);
+        setImagePreview(url);
+
+        // If histories is empty, fetch movies from a different backend call
+        if (histories && histories.length === 0) {
+          const defaultMovies = await filmee_backend.getAllMovies(10); // Your method to fetch movies
+          setMovies(defaultMovies);
+        } else {
+          const defaultMovies = await filmee_backend.getRecommendationUser(principal.toText(), 10);
+          const parse = JSON.parse(defaultMovies).recommendations;
+
+          // Function to convert object keys to lowercase
+          const keysToLowerCase = (obj) => {
+            return Object.keys(obj).reduce((acc, key) => {
+              acc[key.toLowerCase()] = obj[key];
+              return acc;
+            }, {});
+          };
+
+          // Convert all objects in the array to lowercase key format
+          const lowerCaseMovies = parse.map((movie) => keysToLowerCase(movie));
+          setMovies(lowerCaseMovies);
+
+        }
+        const horrorMovies = await filmee_backend.searchMovieByGenre('horror', 0, 10);
+        setHorror(horrorMovies);
+
+        const actionMovies = await filmee_backend.searchMovieByGenre('action', 0, 10);
+        setAction(actionMovies);
+
+        const adventureMovies = await filmee_backend.searchMovieByGenre('adventure', 0, 10);
+        setAdventure(adventureMovies);
+      } catch (error) {
+        console.error("Error fetching user or movies:", error);
+      }
+    };
+
+    fetchUser(); // Call the fetchUser function when the component mounts or dependencies change
+  }, [isAuthenticated, loading, navigate, principal]);
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
+
+  const handleProfile = () => {
+    navigate("/profile");
+  }
+
+  const scroll = (ref, direction) => {
+    if (ref.current) {
+      ref.current.scrollBy({
+        left: direction === "left" ? -500 : 500,
+        behavior: "smooth"
+      });
     }
   };
-  const [menuOpen, setMenuOpen] = useState(false); // Untuk mobile menu toggle
-  const [searchTerm, setSearchTerm] = useState(""); // Untuk fitur pencarian
-  const [filteredMovies, setFilteredMovies] = useState([]); // Untuk hasil pencarian
-  const [profileMenuOpen, setProfileMenuOpen] = useState(false); // Untuk menu profil dropdown
 
-  useEffect(() => {
-    setFilteredMovies(
-      movies.filter((movie) =>
-        movie.title.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    );
-  }, [searchTerm]);
+  if (loading || !isAuthenticated) return <p>Loading...</p>;
 
-  const scrollLeft = () => {
-    if (carouselRef.current) {
-      carouselRef.current.scrollBy({ left: -300, behavior: "smooth" });
-    }
-  };
-
-  const scrollRight = () => {
-    if (carouselRef.current) {
-      carouselRef.current.scrollBy({ left: 300, behavior: "smooth" });
-    }
-  };
-
-  return isAuthenticated ? (
-    <div className="min-h-screen bg-black text-white font-sans flex flex-col justify-between">
+  return (
+    <div className="min-h-screen bg-black text-white font-sans flex flex-col justify-between montserrat tracking-wide space-x-16">
       {/* Navbar */}
-      <nav className="bg-gray-900 p-4 flex justify-between items-center fixed w-full z-50 top-0 left-0 shadow-md">
-        <h1 className="text-2xl font-bold tracking-wide">FILMEE</h1>
+      <nav className="bg-transparent p-4 flex justify-between items-center fixed w-full z-50 top-0 left-0 px-10 md:px-20 shadow-md">
+        <h1 className="text-3xl font-bold tracking-wide">FILMEE</h1>
+
         <div className="hidden md:flex space-x-6">
-          <Link to="/" className="text-large text-red-500">Home</Link>
-          <Link to="/movies" className="text-large hover:text-gray-400">Movies</Link>
-          <Link to="/tv-series" className="text-large hover:text-gray-400">TV Series</Link>
+          <Link to="/dashboard" className="text-large text-red-500">Home</Link>
           <Link to="/watchlist" className="text-large hover:text-gray-400">Your Watchlist</Link>
         </div>
 
-        {/* Search Bar */}
         <div className="hidden md:flex items-center bg-gray-800 px-4 py-2 rounded-full">
-          <input
-            type="text"
-            placeholder="Search..."
-            className="bg-transparent text-white outline-none placeholder-gray-400 w-full"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <FaSearch className="text-gray-400" />
+          <Search />
         </div>
 
-        {/* Profile Icon */}
         <div className="hidden md:flex items-center relative">
           <button onClick={() => setProfileMenuOpen(!profileMenuOpen)}>
-            <FaUserCircle className="text-white text-2xl" />
+            {user && user[0].profilePic[0] ? <img src={imagePreview} alt="" className="h-14 w-14 object-cover rounded-full cursor-pointer" /> : <FaUserCircle className="w-10 h-10"/>}
+            
           </button>
           {profileMenuOpen && (
             <div className="absolute right-0 mt-2 w-40 bg-gray-900 text-white mt-30 shadow-lg rounded-lg overflow-hidden z-50">
+              <button onClick={handleProfile} className="flex items-center px-4 py-2 hover:bg-gray-700 w-full text-left">
+                <FaUser className="mr-2" /> Profile
+              </button>
               <button onClick={handleLogout} className="flex items-center px-4 py-2 hover:bg-gray-700 w-full text-left">
                 <FaSignOutAlt className="mr-2" /> Logout
               </button>
@@ -117,7 +132,6 @@ export default function DashboardPage({ setIsAuthenticated }) {
           )}
         </div>
 
-        {/* Mobile Menu Button */}
         <button className="md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
           {menuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
         </button>
@@ -127,10 +141,7 @@ export default function DashboardPage({ setIsAuthenticated }) {
       {menuOpen && (
         <div className="absolute top-16 left-0 w-full bg-gray-900 text-white p-4 flex flex-col space-y-4 shadow-md z-50">
           <Link to="/" className="text-large text-red-500">Home</Link>
-          <Link to="/movies" className="text-large hover:text-gray-400">Movies</Link>
-          <Link to="/tv-series" className="text-large hover:text-gray-400">TV Series</Link>
           <Link to="/watchlist" className="text-large hover:text-gray-400">Your Watchlist</Link>
-          {/* Search Bar in Mobile */}
           <div className="flex items-center bg-gray-800 px-4 py-2 rounded-full">
             <input
               type="text"
@@ -141,7 +152,6 @@ export default function DashboardPage({ setIsAuthenticated }) {
             />
             <FaSearch className="text-gray-400" />
           </div>
-          {/* Logout in Mobile */}
           <button onClick={handleLogout} className="flex items-center px-4 mb-20 py-2 bg-red-500 rounded-lg">
             <FaSignOutAlt className="mr-2" /> Logout
           </button>
@@ -149,118 +159,48 @@ export default function DashboardPage({ setIsAuthenticated }) {
       )}
 
       {/* Hero Section */}
-      <section className="relative w-full h-screen bg-cover bg-center flex items-center text-left px-10 md:px-20" style={{ backgroundImage: "url('/bg-1.png')" }}>
+      <section className="relative w-full h-screen bg-cover bg-center flex items-center text-left px-10 md:px-20" style={{ backgroundImage: "url('https://image.tmdb.org/t/p/original/1g0dhYtq4irTY1GPXvft6k4YLjm.jpg')" }}>
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent"></div>
-        <div className="relative z-10 max-w-lg">
-          <h1 className="text-4xl md:text-6xl font-extrabold mb-4">Naruto Shipudden</h1>
-          <p className="text-lg md:text-xl mb-6">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam beatae, quaerat eligendi enim laboriosam dolorem dolores rem consectetur hic saepe fugit cupiditate perspiciatis odit at inventore sapiente! Impedit, laboriosam numquam.</p>
+        <div className="relative z-10 max-w-6xl">
+          <h1 className="text-4xl md:text-6xl font-bold tracking-wider mb-4">Spider-Man: No Way Home</h1>
+          <p className="text-lg md:text-xl mb-6 text-gray-400">Peter Parker is unmasked and no longer able to separate his normal life from the high-stakes of being a super-hero. When he asks for help from Doctor Strange the stakes become even more dangerous, forcing him to discover what it truly means to be Spider-Man.</p>
           <button className="bg-red-600 px-6 py-3 text-lg font-semibold rounded-full hover:bg-red-700 transition-all">Learn More</button>
         </div>
       </section>
 
-      {/* Movie Section */}
-      <div className="relative mt-20 p-6">
-        <h2 className="text-2xl font-semibold mb-4">You Might Like</h2>
-        <div className="relative flex items-center">
-          <button className="absolute left-0 z-10 bg-gray-900 p-3 rounded-full" onClick={scrollLeft}>
-            <FaChevronLeft size={24} />
-          </button>
-          <div ref={carouselRef} className="overflow-x-auto flex space-x-4 scrollbar-hide no-scrollbar w-full px-12">
-            {filteredMovies.length > 0 ? (
-              filteredMovies.map((movie, index) => (
-                <div key={index} className="min-w-[250px] bg-gray-800 p-4 rounded-lg shadow-lg">
-                  <img src={movie.image} alt={movie.title} className="w-full h-40 object-cover rounded-lg" />
-                  <h4 className="text-lg font-semibold mt-2">{movie.title}</h4>
-                  <p className="text-xs text-gray-300">{movie.description}</p>
-                </div>
-              ))
-            ) : (
-              <p className="text-gray-400">No movies found</p>
-            )}
-          </div>
-          <button className="absolute right-0 z-10 bg-gray-900 p-3 rounded-full" onClick={scrollRight}>
-            <FaChevronRight size={24} />
-          </button>
-        </div>
-      </div>
-      {/* Movie Section */}
-      <div className="relative mt-20 p-6">
-        <h2 className="text-2xl font-semibold mb-4">Horror Collection</h2>
-        <div className="relative flex items-center">
-          <button className="absolute left-0 z-10 bg-gray-900 p-3 rounded-full" onClick={scrollLeft}>
-            <FaChevronLeft size={24} />
-          </button>
-          <div ref={carouselRef} className="overflow-x-auto flex space-x-4 scrollbar-hide no-scrollbar w-full px-12">
-            {filteredMovies.length > 0 ? (
-              filteredMovies.map((movie, index) => (
-                <div key={index} className="min-w-[250px] bg-gray-800 p-4 rounded-lg shadow-lg">
-                  <img src={movie.image} alt={movie.title} className="w-full h-40 object-cover rounded-lg" />
-                  <h4 className="text-lg font-semibold mt-2">{movie.title}</h4>
-                  <p className="text-xs text-gray-300">{movie.description}</p>
-                </div>
-              ))
-            ) : (
-              <p className="text-gray-400">No movies found</p>
-            )}
-          </div>
-          <button className="absolute right-0 z-10 bg-gray-900 p-3 rounded-full" onClick={scrollRight}>
-            <FaChevronRight size={24} />
-          </button>
-        </div>
-      </div>
-      {/* Movie Section */}
-      <div className="relative mt-20 p-6">
-        <h2 className="text-2xl font-semibold mb-4">In Collection</h2>
-        <div className="relative flex items-center">
-          <button className="absolute left-0 z-10 bg-gray-900 p-3 rounded-full" onClick={scrollLeft}>
-            <FaChevronLeft size={24} />
-          </button>
-          <div ref={carouselRef} className="overflow-x-auto flex space-x-4 scrollbar-hide no-scrollbar w-full px-12">
-            {filteredMovies.length > 0 ? (
-              filteredMovies.map((movie, index) => (
-                <div key={index} className="min-w-[250px] bg-gray-800 p-4 rounded-lg shadow-lg">
-                  <img src={movie.image} alt={movie.title} className="w-full h-40 object-cover rounded-lg" />
-                  <h4 className="text-lg font-semibold mt-2">{movie.title}</h4>
-                  <p className="text-xs text-gray-300">{movie.description}</p>
-                </div>
-              ))
-            ) : (
-              <p className="text-gray-400">No movies found</p>
-            )}
-          </div>
-          <button className="absolute right-0 z-10 bg-gray-900 p-3 rounded-full" onClick={scrollRight}>
-            <FaChevronRight size={24} />
-          </button>
-        </div>
-      </div>
-      {/* Movie Section */}
-      <div className="relative mt-20 p-6">
-        <h2 className="text-2xl font-semibold mb-4">Comedy</h2>
-        <div className="relative flex items-center">
-          <button className="absolute left-0 z-10 bg-gray-900 p-3 rounded-full" onClick={scrollLeft}>
-            <FaChevronLeft size={24} />
-          </button>
-          <div ref={carouselRef} className="overflow-x-auto flex space-x-4 scrollbar-hide no-scrollbar w-full px-12">
-            {filteredMovies.length > 0 ? (
-              filteredMovies.map((movie, index) => (
-                <div key={index} className="min-w-[250px] bg-gray-800 p-4 rounded-lg shadow-lg">
-                  <img src={movie.image} alt={movie.title} className="w-full h-40 object-cover rounded-lg" />
-                  <h4 className="text-lg font-semibold mt-2">{movie.title}</h4>
-                  <p className="text-xs text-gray-300">{movie.description}</p>
-                </div>
-              ))
-            ) : (
-              <p className="text-gray-400">No movies found</p>
-            )}
-          </div>
-          <button className="absolute right-0 z-10 bg-gray-900 p-3 rounded-full" onClick={scrollRight}>
-            <FaChevronRight size={24} />
-          </button>
-        </div>
-      </div>
+      {/* You Might Like Sections */}
+      <Carousel
+        ref={youMightLikeRef}
+        title="You Might Like"
+        movies={movies}
+        scroll={scroll}
+      />
 
-      {/* Footer */}
+      {/* Horror Sections */}
+      <Carousel
+        ref={horrorRef}
+        title="Horror"
+        movies={horror}
+        scroll={scroll}
+      />
+
+      {/* Action Sections */}
+      <Carousel
+        ref={actionRef}
+        title="Action"
+        movies={action}
+        scroll={scroll}
+      />
+
+      {/* Adventure Sections */}
+      <Carousel
+        ref={adventureRef}
+        title="Adventure"
+        movies={adventure}
+        scroll={scroll}
+      />
+
       <Footer />
     </div>
-  ) : null;
+  );
 }

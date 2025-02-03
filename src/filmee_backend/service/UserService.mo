@@ -10,8 +10,6 @@ import Types "../type/Types";
 import Error "mo:base/Error";
 import Nat "mo:base/Nat";
 
-import ledger "canister:icp_ledger_canister";
-
 module {
     public func authenticateUser(
         users : Types.Users,
@@ -244,13 +242,29 @@ module {
         };
     };
 
-    public func addBookmark(users : Types.Users, movies : Types.Movies, principalId : Text, movieId : Text) : [Types.Movie] {
+    public func toggleBookmark(users : Types.Users, movies : Types.Movies, principalId : Text, movieId : Text) : [Types.Movie] {
         switch (users.get(principalId)) {
             case (?user) {
                 let existingBookmark = Array.find<Types.Movie>(user.bookmark, func(m) { m.id == movieId });
                 switch (existingBookmark) {
                     case (?_) {
-                        user.bookmark; // Movie already bookmarked, return current bookmarks
+                        var newBookmarks : [Types.Movie] = [];
+                        for(m in user.bookmark.vals()) {
+                            if(m.id != movieId) {
+                                newBookmarks := Array.append(newBookmarks, [m]);
+                            }
+                        };
+                        let updatedUser : Types.User = {
+                            id = user.id;
+                            username = user.username;
+                            tier = user.tier;
+                            profilePic = user.profilePic;
+                            tierValidUntil = user.tierValidUntil;
+                            histories = user.histories;
+                            bookmark = newBookmarks;
+                        };
+                        users.put(principalId, updatedUser);
+                        newBookmarks;
                     };
                     case null {
                         switch (movies.get(movieId)) {

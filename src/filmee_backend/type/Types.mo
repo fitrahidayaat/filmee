@@ -4,9 +4,7 @@ import Bool "mo:base/Bool";
 import Nat "mo:base/Nat";
 import Text "mo:base/Text";
 import Float "mo:base/Float";
-
-
-import ledger "canister:icp_ledger_canister";
+import Blob "mo:base/Blob";
 
 module {
     public type Users = HashMap.HashMap<Text, User>;
@@ -19,7 +17,7 @@ module {
         id : Text;
         username : Text;
         tier : Text;
-        profilePic : ?Text;
+        profilePic : ?Blob;
         tierValidUntil : Int;
 
         bookmark : [Movie];
@@ -33,7 +31,7 @@ module {
 
     public type UserUpdateData = {
         username : ?Text;
-        profilePic : ?Text;
+        profilePic : ?Blob;
     };
 
     public type Movie = {

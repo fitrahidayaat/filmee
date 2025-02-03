@@ -86,6 +86,8 @@ module {
                             isSpoiler = review.isSpoiler;
                         };
 
+                        reviews.put(reviewId, newReview);
+
                         return #ok(newReview);
                     };
                     case null {
@@ -119,7 +121,7 @@ module {
                     case (?_) {
                         var newDownvote : [Text] = [];
 
-                        for(id in review.upVote.vals()) {
+                        for(id in review.downVote.vals()) {
                             if (id != principalId) {
                                 newDownvote := Array.append<Text>(newDownvote, [id]);
                             }
@@ -135,7 +137,7 @@ module {
                             date = review.date;
                             isSpoiler = review.isSpoiler;
                         };
-
+                        reviews.put(reviewId, newReview);
                         return #ok(newReview);
                     };
                     case null {

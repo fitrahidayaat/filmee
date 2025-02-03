@@ -3,29 +3,17 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import LoginPage from "./Pages/LoginPage";
 import RegisterPage from "./Pages/RegisterPage";
 import DashboardPage from "./Pages/DashboardPage";
-import MoviesPage from "./Pages/MoviesPage";
-import TvSeriesPage from "./Pages/TVSeriesPage";
 import YourWatchListPage from "./Pages/YourWatchlistPage";
-import ReviewFilmPage from "./Pages/ReviewMovie";
 import UserProfilePage from "./Pages/UserProfilePage";
-import { AuthService } from "./Service/AuthService";
+import MoviePage from './Pages/MoviePage';
 import HomePage from "./Pages/HomePage";
+import SearchPage from './Pages/SearchPage';
+import { useAuth } from "./Hooks/authHook";
+import PlansPage from "./Pages/PlansPage";
 
 
 function AppWrapper() {
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    localStorage.getItem("isAuthenticated") === "true"
-  );
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const authService = new AuthService();
-    authService.init().then(() => {
-      setIsAuthenticated(authService.isAuthenticated);
-      localStorage.setItem("isAuthenticated", authService.isAuthenticated ? "true" : "false");
-      setLoading(false);
-    });
-  }, []);
+  const {isAuthenticated, loading} = useAuth();
 
   if (loading) {
     return <div className="flex justify-center items-center h-screen text-white text-lg">Loading...</div>;
@@ -36,32 +24,32 @@ function AppWrapper() {
       
       <Routes>
       <Route path="/" element={<HomePage />} />
-      <Route path="/login" element={<LoginPage setIsAuthenticated={setIsAuthenticated} />} />
-      <Route path="/register" element={<RegisterPage setIsAuthenticated={setIsAuthenticated} />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
         <Route
           path="/dashboard"
-          element={isAuthenticated ? <DashboardPage setIsAuthenticated={setIsAuthenticated} /> : <Navigate to="/login" replace />}
-        />
-        <Route
-          path="/movies"
-          element={isAuthenticated ? <MoviesPage setIsAuthenticated={setIsAuthenticated} /> : <Navigate to="/login" replace />}
-        />
-        <Route
-          path="/tv-series"
-          element={isAuthenticated ? <TvSeriesPage setIsAuthenticated={setIsAuthenticated} /> : <Navigate to="/login" replace />}
+          element={isAuthenticated ? <DashboardPage /> : <Navigate to="/login" replace />}
         />
         <Route
           path="/watchlist"
-          element={isAuthenticated ? <YourWatchListPage setIsAuthenticated={setIsAuthenticated} /> : <Navigate to="/login" replace />}
+          element={isAuthenticated ? <YourWatchListPage /> : <Navigate to="/login" replace />}
         />
         <Route
-          path="/review"
-          element={isAuthenticated ? <ReviewFilmPage setIsAuthenticated={setIsAuthenticated} /> : <Navigate to="/login" replace />}
+          path="/movie/:title"
+          element={isAuthenticated ? <MoviePage /> : <Navigate to="/login" replace />}
         />
         <Route
           path="/profile"
-          element={<UserProfilePage />}
+          element={isAuthenticated ? <UserProfilePage /> : <Navigate to="/login" replace />}
         />
+        <Route
+          path="/search/:term"
+          element={isAuthenticated ? <SearchPage /> : <Navigate to="/login" replace />}
+        />
+        <Route
+          path="/plan"
+          element={isAuthenticated ? <PlansPage /> : <Navigate to="/login" replace />}
+          />
         <Route path="*" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />} />
       </Routes>
     </Router>

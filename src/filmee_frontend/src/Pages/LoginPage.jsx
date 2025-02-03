@@ -2,30 +2,15 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthService } from "../Service/AuthService";
 import Footer from "../Components/Footer"; // Import Footer
+import { useAuth } from "../Hooks/authHook";
 
 export default function LoginPage({ setIsAuthenticated }) {
-  const [authService, setAuthService] = useState(null);
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const {login, loading} = useAuth();
 
-  useEffect(() => {
-    const auth = new AuthService();
-    auth.init().then(() => {
-      setAuthService(auth);
-      setLoading(false);
-    });
-  }, []);
-
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-        await authService.login();
-        navigate('/dashboard');
-    } catch (error) {
-        setMessage(error.message);
-    }
-};
+    await login();
+  }
 
   if (loading) {
     return <p>Loading...</p>;
@@ -45,7 +30,7 @@ export default function LoginPage({ setIsAuthenticated }) {
             Welcome Back!
           </h1>
 
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
 
             <div className="flex justify-between text-sm text-gray-400">
               <div className="flex items-center">
@@ -61,8 +46,6 @@ export default function LoginPage({ setIsAuthenticated }) {
               Log In
             </button>
           </form>
-
-          {message && <p className="text-center mt-4 text-sm text-red-500">{message}</p>}
         </div>
       </div>
 

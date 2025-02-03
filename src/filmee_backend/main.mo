@@ -63,8 +63,8 @@ actor {
         return UserService.getBookmarks(users, principalId);
     };
 
-    public func addBookmark(principalId : Text, movieId : Text) : async [Types.Movie] {
-        return UserService.addBookmark(users, movies, principalId, movieId);
+    public func toggleBookmark(principalId : Text, movieId : Text) : async [Types.Movie] {
+        return UserService.toggleBookmark(users, movies, principalId, movieId);
     };
 
     public func addHistory(principalId: Text, title : Text) : async [Text] {

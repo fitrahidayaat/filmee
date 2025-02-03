@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaUserCircle, FaSignOutAlt, FaSearch, FaBars, FaTimes } from "react-icons/fa";
+import { FaSearch, FaBars, FaTimes, FaUserCircle, FaUser, FaSignOutAlt } from "react-icons/fa";
 import { AuthService } from "../Service/AuthService";
 import Footer from "../Components/Footer";
+import Search from "../Components/ui/Search";
+import { useAuth } from "../Hooks/authHook";
+import { filmee_backend } from "../../../declarations/filmee_backend";
 
 export default function PlansPage() {
   const navigate = useNavigate();
@@ -10,6 +13,21 @@ export default function PlansPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [imagePreview, setImagePreview] = useState();
+  const {principal} = useAuth();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const user = await filmee_backend.getUserById(principal.toText());
+      if (user?.profilePic) {
+        // Convert blob (Uint8Array) to data URL
+      }
+      const blob = new Blob([user[0].profilePic[0]]);
+      const url = URL.createObjectURL(blob);
+      setImagePreview(url);
+    }
+    fetchUser();
+  }, [principal]);
 
   const handleLogout = async () => {
     try {
@@ -21,22 +39,52 @@ export default function PlansPage() {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-black text-white flex flex-col justify-between">
-      {/* Navbar */}
-      <nav className="bg-gray-900 p-4 flex justify-between items-center fixed w-full z-50 top-0 left-0 shadow-md">
-        <h1 className="text-2xl font-bold tracking-wide">FILMEE</h1>
+  const handleProfile = () => {
+    navigate("/profile");
+  };
 
-        {/* Desktop Navigation */}
+  const handleTier1 = async () => {
+    const res = await filmee_backend.purchasePremium(principal.toText(), "tier1");
+    navigate("/profile");
+  };
+
+  const handleTier2 = async () => {
+    const res = await filmee_backend.purchasePremium(principal.toText(), "tier2");
+    navigate("/profile");
+  };
+
+  return (
+    <div className="min-h-screen bg-black text-white flex flex-col justify-between montserrat">
+      {/* Navbar */}
+      <nav className="bg-transparent p-4 flex justify-between items-center fixed w-full z-50 top-0 left-0 px-10 md:px-20 shadow-md">
+        <h1 className="text-3xl font-bold tracking-wide">FILMEE</h1>
+
         <div className="hidden md:flex space-x-6">
-        <Link to="/" className="text-large hover:text-gray-400">Home</Link>
-          <Link to="/movies" className="text-large hover:text-gray-400">Movies</Link>
-          <Link to="/tv-series" className="text-large hover:text-gray-400">TV Series</Link>
+          <Link to="/dashboard" className="text-large hover:text-gray-400">Home</Link>
           <Link to="/watchlist" className="text-large hover:text-gray-400">Your Watchlist</Link>
-          <Link to="/plans" className="text-large text-red-500">Plans</Link>
         </div>
 
-        {/* Mobile Menu Button */}
+        <div className="hidden md:flex items-center bg-gray-800 px-4 py-2 rounded-full">
+          <Search />
+        </div>
+
+        <div className="hidden md:flex items-center relative">
+          <button onClick={() => setProfileMenuOpen(!profileMenuOpen)}>
+            {/* <FaUserCircle className="text-white text-3xl" /> */}
+            <img src={imagePreview}  alt="" className="h-14 w-14 object-cover rounded-full cursor-pointer" />
+          </button>
+          {profileMenuOpen && (
+            <div className="absolute right-0 mt-2 w-40 bg-gray-900 text-white mt-30 shadow-lg rounded-lg overflow-hidden z-50">
+              <button onClick={handleProfile} className="flex items-center px-4 py-2 hover:bg-gray-700 w-full text-left">
+                <FaUser className="mr-2" /> Profile
+              </button>
+              <button onClick={handleLogout} className="flex items-center px-4 py-2 hover:bg-gray-700 w-full text-left">
+                <FaSignOutAlt className="mr-2" /> Logout
+              </button>
+            </div>
+          )}
+        </div>
+
         <button className="md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
           {menuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
         </button>
@@ -78,7 +126,7 @@ export default function PlansPage() {
             <p className="text-gray-600 mt-2">• Movie recommendations</p>
             <p className="text-gray-600">• Advanced search & filter</p>
             <Link to="/register">
-              <button className="bg-black text-white font-semibold py-2 px-6 rounded-lg w-full mt-4 hover:bg-gray-800 transition">
+              <button className="bg-black text-white font-semibold py-2 px-6 rounded-lg w-full mt-4 hover:bg-gray-800 transition" onClick={handleTier1}>
                 Purchase
               </button>
             </Link>
@@ -93,7 +141,7 @@ export default function PlansPage() {
             <p className="text-gray-600">• Movie bookmarking</p>
             <p className="text-gray-600">• Spoiler detection</p>
             <Link to="/register">
-              <button className="bg-black text-white font-semibold py-2 px-6 rounded-lg w-full mt-4 hover:bg-gray-800 transition">
+              <button className="bg-black text-white font-semibold py-2 px-6 rounded-lg w-full mt-4 hover:bg-gray-800 transition" onClick={handleTier2}>
                 Purchase
               </button>
             </Link>
