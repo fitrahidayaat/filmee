@@ -18,11 +18,12 @@ export default function SearchPage() {
   const [imagePreview, setImagePreview] = useState();
   const [searchParams] = useSearchParams();
   const term = params.term;
-  let selectedOptions = searchParams.get('selectedOptions');
-  if(selectedOptions) {
-    selectedOptions = searchParams.get('selectedOptions').split(',')
+  const [user, setUser] = useState();
+  let genre = searchParams.get('selectedOptions');
+  if(genre) {
+    genre = searchParams.get('selectedOptions').split(',')
   }
-  const minRating = Number(searchParams.get('minRating'));
+  const rating = Number(searchParams.get('minRating'));
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -33,17 +34,20 @@ export default function SearchPage() {
 
       try {
         const user = await filmee_backend.getUserById(principal.toText());
-
         const blob = new Blob([user[0].profilePic[0]]);
         const url = URL.createObjectURL(blob);
         setImagePreview(url);
         // If histories is empty, fetch movies from a different backend call
         let defaultMovies;
-        if((user[0].tier == "tier1" || user[0].tier == "tier2") && selectedOptions && minRating) {  
-          defaultMovies = await filmee_backend.searchMovieByTitleUsingFilter(term, selectedOptions, minRating, 0, 20);
+        console.log(genre, rating,  user[0].tier);
+        if((user[0].tier == "tier1" || user[0].tier == "tier2") && genre && rating != undefined) {  
+          console.log("asdsa");
+          defaultMovies = await filmee_backend.searchMovieByTitleUsingFilter(term, genre, rating, 0, 20);
         } else {
+          console.log("tes");
           defaultMovies = await filmee_backend.searchMovieByTitle(params.term, 0, 20);
         }
+        setUser(user[0]);
         setMovies(defaultMovies);
       } catch (error) {
         console.error("Error fetching user or movies:", error);
@@ -60,8 +64,42 @@ export default function SearchPage() {
 
   const handleProfile = () => {
     navigate("/profile");
-  }
+  };
 
+  const [showRating, setShowRating] = useState(false);
+  const [minRating, setMinRating] = useState(0);
+
+  const options = [
+    "Action",
+    "Adventure",
+    "Animation",
+    "Comedy",
+    "Crime",
+    "Documentary",
+    "Drama",
+    "Family",
+    "Fantasy",
+    "History",
+    "Horror",
+    "Mystery",
+    "Romance",
+    "Science Fiction",
+    "Thriller",
+    "TV Movie",
+  ];
+  // State to track selected options
+  const [selectedOptions, setSelectedOptions] = useState([]);
+
+  // Handle checkbox change
+  const handleCheckboxChange = (option) => {
+    if (selectedOptions.includes(option)) {
+      // If already selected, remove it
+      setSelectedOptions(selectedOptions.filter((item) => item !== option));
+    } else {
+      // If not selected, add it
+      setSelectedOptions([...selectedOptions, option]);
+    }
+  };
 
   if (loading || !isAuthenticated) return <p>Loading...</p>;
 
@@ -76,14 +114,47 @@ export default function SearchPage() {
           <Link to="/dashboard" className="text-large text-red-500">Home</Link>
           <Link to="/watchlist" className="text-large hover:text-gray-400">Your Watchlist</Link>
         </div>
+        <div className="flex justify-center items-center gap-5">
+          <div className="hidden md:flex items-center bg-gray-800 px-4 py-2 rounded-full">
+            <Search selectedOptions={selectedOptions} minRating={minRating} />
+          </div>
+          <div className="relative">
+            {user && user.tier != "free" && <FaFilter onClick={() => { setShowRating((prev) => !prev) }} className="cursor-pointer" />}
 
-        <div className="hidden md:flex items-center bg-gray-800 px-4 py-2 rounded-full">
-          <Search />
+            {showRating && (
+              <>
+                <div className="absolute right-0 w-200 bg-gray-900 text-white mt-4 shadow-lg rounded-lg overflow-hidden z-50 p-10">
+                  <h2 className="text-xl font-bold mb-4">Filter</h2>
+                  <div className="flex gap-8 mb-4">
+                    <label htmlFor="">Min. Rating</label>
+                    <input type="number" className="w-80 h-4 text-white" max="10" min="0" defaultValue={0} onChange={(e) => { setMinRating(Number(e.target.value)) }} />
+                  </div>
+                  <h2>Genre</h2>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1">
+                    {options.map((option, index) => (
+                      <label key={index} className="flex items-center space-x-2 bg-transparent p-3 rounded-md shadow-sm text-white  hover:text-gray-700 transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={selectedOptions.includes(option)}
+                          onChange={() => handleCheckboxChange(option)}
+                          className="form-checkbox h-5 w-5 text-white rounded"
+                        />
+                        <span className=" ">{option}</span>
+                      </label>
+                    ))}
+                  </div>
+
+                </div>
+              </>
+            )}
+
+          </div>
         </div>
 
         <div className="hidden md:flex items-center relative">
           <button onClick={() => setProfileMenuOpen(!profileMenuOpen)}>
-            <img src={imagePreview} alt="" className="h-14 w-14 object-cover rounded-full cursor-pointer" />
+            {user && user.profilePic[0] ? <img src={imagePreview} alt="" className="h-14 w-14 object-cover rounded-full cursor-pointer" /> : <FaUserCircle className="w-10 h-10" />}
+
           </button>
           {profileMenuOpen && (
             <div className="absolute right-0 w-40 bg-gray-900 text-white mt-30 shadow-lg rounded-lg overflow-hidden z-50">
