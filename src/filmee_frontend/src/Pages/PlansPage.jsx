@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaSearch, FaBars, FaTimes, FaUserCircle, FaUser, FaSignOutAlt, FaFilter  } from "react-icons/fa";
+import { FaBars, FaTimes, FaUserCircle, FaUser, FaSignOutAlt, FaFilter  } from "react-icons/fa";
 import { AuthService } from "../Service/AuthService";
 import Footer from "../Components/Footer";
 import Search from "../Components/ui/Search";

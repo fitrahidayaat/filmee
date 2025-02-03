@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaChevronLeft, FaChevronRight, FaUserCircle, FaSignOutAlt, FaSearch, FaBars, FaTimes, FaUser, FaFilter } from "react-icons/fa";
+import { FaUserCircle, FaSignOutAlt, FaSearch, FaBars, FaTimes, FaUser, FaFilter } from "react-icons/fa";
 import { useAuth } from "../Hooks/authHook";
 import Footer from "../Components/Footer";
 import { filmee_backend } from "../../../declarations/filmee_backend";
-import { ClipLoader } from 'react-spinners';  // Import the loader
 import Carousel from "../Components/ui/Carousel";
 import Search from "../Components/ui/Search";
 

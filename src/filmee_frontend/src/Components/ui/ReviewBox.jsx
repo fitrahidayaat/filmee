@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import profile from "../../../public/profile.png";
 import { FaChevronLeft, FaChevronRight, FaUserCircle, FaSignOutAlt, FaSearch, FaBars, FaTimes, FaStar, FaPaperPlane, FaThumbsUp, FaThumbsDown, FaRegThumbsUp, FaRegThumbsDown, FaEyeSlash } from "react-icons/fa";
 import { filmee_backend } from "../../../../declarations/filmee_backend";
 import { useAuth } from "../../Hooks/authHook";

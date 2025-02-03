@@ -1,6 +1,3 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { AuthService } from "../Service/AuthService";
 import Footer from "../Components/Footer"; // Import Footer
 import { useAuth } from "../Hooks/authHook";
 

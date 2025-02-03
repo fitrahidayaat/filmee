@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams, useSearchParams  } from "react-router-dom";
-import { FaChevronLeft, FaChevronRight, FaUserCircle, FaSignOutAlt, FaSearch, FaBars, FaTimes, FaUser, FaFilter } from "react-icons/fa";
+import { FaUserCircle, FaSignOutAlt, FaSearch, FaBars, FaTimes, FaUser, FaFilter } from "react-icons/fa";
 import { useAuth } from "../Hooks/authHook";
 import Footer from "../Components/Footer";
 import { filmee_backend } from "../../../declarations/filmee_backend";

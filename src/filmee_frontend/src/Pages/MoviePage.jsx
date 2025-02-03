@@ -1,21 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { FaChevronLeft, FaChevronRight, FaUserCircle, FaSignOutAlt, FaFilter, FaBars, FaTimes, FaStar, FaUser, FaPaperPlane, FaThumbsUp, FaThumbsDown, FaRegThumbsUp, FaRegThumbsDown, FaRegBookmark, FaBookmark } from "react-icons/fa";
+import { FaUserCircle, FaSignOutAlt, FaFilter, FaBars, FaTimes, FaStar, FaUser, FaPaperPlane, FaRegBookmark, FaBookmark } from "react-icons/fa";
 import { useAuth } from "../Hooks/authHook";
 import Footer from "../Components/Footer";
 import { filmee_backend } from "../../../declarations/filmee_backend";
-import { ClipLoader } from 'react-spinners';  // Import the loader
 import Carousel from "../Components/ui/Carousel";
-import profile from "../../public/profile.png";
 import ReviewBox from "../Components/ui/ReviewBox";
 import Search from "../Components/ui/Search";
-const review = {
-  name: "Samsul",
-  date: "01/01/2024",
-  comment: "It’s a decent movie with solid performances, but I feel like it didn’t live up to the massive hype. The pacing was a bit uneven, and some plot points felt predictable. Still, it's worth a watch for the action scenes alone.",
-  upVote: 445,
-  downVote: 1
-}
 
 export default function MoviePage() {
   const navigate = useNavigate();
